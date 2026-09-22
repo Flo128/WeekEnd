@@ -71,7 +71,7 @@ const configured = !SUPABASE_URL.includes("TON_URL") && !SUPABASE_ANON_KEY.inclu
 const supabaseClient = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let dates=[], currentDateId=null, editId=null, currentTables=[], computedTableName="";
-const MAX_DATES=10;
+const MAX_DATES=11;
 
 const datesEl=document.getElementById("dates"), tablesEl=document.getElementById("tables"), summaryEl=document.getElementById("summary"), notice=document.getElementById("notice"), modalWrap=document.getElementById("modalWrap"), dateModalWrap=document.getElementById("dateModalWrap");
 
