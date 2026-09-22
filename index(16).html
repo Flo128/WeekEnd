@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registre des Tables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void: #131009;
+    --panel: #1c1712;
+    --panel-raised: #221b14;
+    --iron: #3a3226;
+    --iron-light: #4d4332;
+    --blood: #7a1f1f;
+    --blood-bright: #a4302c;
+    --brass: #b98d4d;
+    --brass-bright: #d9ab68;
+    --parchment: #e9dcc0;
+    --parchment-dim: #a99a7c;
+    --parchment-faint: #746a56;
+    --ok: #7fae6f;
+    --font-display: 'Cinzel', 'Times New Roman', serif;
+    --font-body: 'EB Garamond', Georgia, serif;
+  }
+  *, *::before, *::after{ box-sizing: border-box; }
+  html, body{ height: 100%; margin: 0; background: var(--void); color: var(--parchment); }
+  body{
+    font-family: var(--font-body);
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(122,31,31,0.16), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(185,141,77,0.06), transparent 60%),
+      var(--void);
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px 48px;
+  }
+  .app{ width: 100%; max-width: 980px; }
+
+  .masthead{
+    position: relative;
+    display: flex; align-items: center; gap: 18px;
+    padding: 22px 26px;
+    background: linear-gradient(180deg, var(--panel-raised), var(--panel));
+    border: 1px solid var(--iron);
+    border-top: 2px solid var(--brass);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+  .masthead::before, .masthead::after{
+    content: ""; position: absolute; top: 10px; width: 6px; height: 6px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--brass-bright), #6b4d24 70%);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  .masthead::before{ left: 10px; }
+  .masthead::after{ right: 10px; }
+  .mast-icon{
+    flex: none; width: 52px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--brass-bright);
+    border: 1px solid var(--iron-light);
+    background: radial-gradient(circle at 50% 30%, #2a2318, var(--void) 80%);
+    transform: rotate(45deg);
+  }
+  .mast-icon span{ display: inline-block; transform: rotate(-45deg); }
+  .mast-text{ flex: 1; min-width: 0; }
+  .mast-text h1{
+    margin: 0; font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(22px, 4vw, 30px); letter-spacing: 0.03em;
+    color: var(--parchment); text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+  }
+  .mast-sub{ margin: 4px 0 0; color: var(--parchment-dim); font-style: italic; font-size: 15px; }
+  .ghost-btn{
+    flex: none; font-family: var(--font-display); font-size: 12px; letter-spacing: 0.06em;
+    color: var(--parchment-dim); background: transparent; border: 1px solid var(--iron-light);
+    padding: 9px 14px; cursor: pointer; transition: border-color .15s ease, color .15s ease;
+  }
+  .ghost-btn:hover{ color: var(--brass-bright); border-color: var(--brass); }
+
+  .status-line{
+    display: flex; align-items: center; gap: 7px; margin: 10px 2px 0;
+    font-size: 12px; font-style: italic; color: var(--parchment-faint);
+  }
+  .status-dot{ width: 7px; height: 7px; border-radius: 50%; background: var(--parchment-faint); box-shadow: 0 0 0 2px rgba(0,0,0,0.3); }
+  .status-dot.shared{ background: var(--ok); }
+  .status-dot.local{ background: var(--brass); }
+  .status-dot.error{ background: var(--blood-bright); }
+
+  .date-tabs{ display: flex; align-items: stretch; gap: 6px; margin-top: 10px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+  .date-tab{
+    position: relative; flex: none; display: flex; align-items: center; gap: 10px;
+    padding: 10px 10px 10px 14px; background: var(--panel); border: 1px solid var(--iron); border-bottom: none;
+    color: var(--parchment-dim); font-family: var(--font-display); font-size: 13px; letter-spacing: 0.02em;
+    cursor: pointer; white-space: nowrap;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+  .date-tab:hover{ color: var(--parchment); }
+  .date-tab.active{
+    color: var(--brass-bright); background: linear-gradient(180deg, var(--panel-raised), var(--panel));
+    border-color: var(--brass); box-shadow: 0 -3px 10px rgba(0,0,0,0.35);
+  }
+  .date-tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background: var(--brass); }
+  .date-tab input{
+    font-family: var(--font-display); font-size: 13px; background: var(--void); color: var(--parchment);
+    border: 1px solid var(--brass); padding: 3px 5px; width: 100px;
+  }
+  .date-tab .del-date{
+    display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%;
+    color: var(--parchment-faint); font-size: 13px; line-height: 1; cursor: pointer;
+  }
+  .date-tab .del-date:hover{ color: var(--blood-bright); background: rgba(164,48,44,0.15); }
+  .add-date{
+    flex: none; display: flex; align-items: center; justify-content: center; width: 38px;
+    background: var(--panel); border: 1px solid var(--iron); border-bottom: none; color: var(--brass);
+    font-size: 18px; cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+  .add-date:hover{ color: var(--brass-bright); background: var(--panel-raised); }
+
+  .board{
+    background: linear-gradient(180deg, var(--panel-raised), var(--panel));
+    border: 1px solid var(--iron); border-top: 2px solid var(--brass);
+    padding: 20px 20px 24px; box-shadow: 0 16px 34px rgba(0,0,0,0.45);
+  }
+  .board-head{ display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .board-head h2{ margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 19px; color: var(--parchment); letter-spacing: 0.02em; }
+  .save-indicator{ font-size: 12px; font-style: italic; color: var(--parchment-faint); transition: color .2s ease; }
+  .save-indicator.pulse{ color: var(--brass-bright); }
+
+  .table-scroll{ overflow-x: auto; border: 1px solid var(--iron); }
+  table{ width: 100%; min-width: 760px; border-collapse: collapse; background: var(--void); }
+  thead th{
+    font-family: var(--font-display); font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--brass-bright); text-align: left; padding: 10px 10px; background: #221a12;
+    border-bottom: 1px solid var(--brass); white-space: nowrap;
+  }
+  th.col-table{ width: 108px; }
+  th.col-actions{ width: 36px; }
+  tbody tr{ border-bottom: 1px solid var(--iron); }
+  tbody tr:last-child{ border-bottom: none; }
+  tbody tr:hover{ background: rgba(185,141,77,0.04); }
+  td{ padding: 4px 6px; vertical-align: middle; }
+  td input{
+    width: 100%; background: transparent; border: 1px solid transparent; color: var(--parchment);
+    font-family: var(--font-body); font-size: 15px; padding: 7px 6px;
+  }
+  td input:focus{ outline: none; border-color: var(--brass); background: rgba(185,141,77,0.06); }
+  td.table-name input{ font-family: var(--font-display); font-size: 13px; color: var(--brass-bright); letter-spacing: 0.02em; }
+  td input::placeholder{ color: var(--parchment-faint); font-style: italic; }
+
+  .del-row{
+    width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+    color: var(--parchment-faint); background: transparent; border: 1px solid var(--iron-light);
+    cursor: pointer; font-size: 13px; margin: 0 auto;
+  }
+  .del-row:hover{ color: var(--blood-bright); border-color: var(--blood-bright); }
+
+  .add-row-btn{
+    display: block; margin: 16px auto 0; font-family: var(--font-display); font-size: 13px;
+    letter-spacing: 0.04em; color: var(--void); background: linear-gradient(180deg, var(--brass-bright), var(--brass));
+    border: none; padding: 10px 22px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+  }
+  .add-row-btn:hover{ filter: brightness(1.08); }
+
+  .footnote{ text-align: center; color: var(--parchment-faint); font-size: 12px; font-style: italic; margin-top: 16px; }
+
+  .config-warning{
+    background: #3a1414; border: 1px solid var(--blood-bright); color: #f3d9d9;
+    padding: 14px 18px; margin-bottom: 14px; font-size: 14px; line-height: 1.5;
+  }
+  .config-warning code{ background: rgba(0,0,0,0.3); padding: 1px 5px; }
+
+  @media (max-width: 560px){
+    .masthead{ padding: 16px; gap: 12px; }
+    .mast-icon{ width: 42px; height: 42px; font-size: 20px; }
+    .ghost-btn{ display: none; }
+  }
+  @media print{
+    body{ background: #fff; color: #000; padding: 0; }
+    .masthead .ghost-btn, .add-date, .add-row-btn, .del-row, .del-date, .footnote, .save-indicator, .status-line{ display: none !important; }
+    .date-tab:not(.active){ display: none; }
+    .masthead, .board, .date-tab.active{ background: #fff; box-shadow: none; border-color: #999; }
+    .mast-text h1, .board-head h2, thead th, td.table-name input{ color: #000; }
+    td input{ color: #000; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="config-warning" id="configWarning" hidden>
+      &#9888; Configuration Firebase manquante ou invalide. Ouvrez <code>index.html</code>, repérez l'objet
+      <code>firebaseConfig</code> en haut du script, et collez-y les valeurs de votre projet Firebase
+      (Console Firebase &rarr; Paramètres du projet &rarr; Vos applications &rarr; SDK). Voir <code>README.md</code>.
+    </div>
+
+    <header class="masthead">
+      <div class="mast-icon"><span>&#9876;</span></div>
+      <div class="mast-text">
+        <h1>Registre des Tables</h1>
+        <p class="mast-sub">Organisation des parties du samedi</p>
+      </div>
+      <button class="ghost-btn" id="printBtn" type="button">Imprimer</button>
+    </header>
+
+    <p class="status-line"><span class="status-dot" id="statusDot"></span><span id="statusText">Connexion\u2026</span></p>
+
+    <nav class="date-tabs" id="dateTabs" aria-label="Samedis"></nav>
+
+    <main class="board">
+      <div class="board-head">
+        <h2 id="activeDateLabel">&nbsp;</h2>
+        <span class="save-indicator" id="saveIndicator">&nbsp;</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-table">Table</th>
+              <th>Jeu</th>
+              <th>Décors</th>
+              <th>Joueur 1</th>
+              <th>Joueur 2</th>
+              <th>Joueur 3</th>
+              <th>Joueur 4</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" id="addRowBtn" type="button">+ Ajouter une table</button>
+    </main>
+
+    <p class="footnote">Les modifications sont partagées en direct avec toute personne qui ouvre cette page.</p>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, doc, onSnapshot, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // ============================================================
+  // 1) COLLEZ ICI LA CONFIGURATION DE VOTRE PROJET FIREBASE.
+  //    Console Firebase > Paramètres du projet > Vos applications > SDK.
+  //    Voir README.md pour les instructions pas à pas.
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "VOTRE_API_KEY",
+    authDomain: "VOTRE_PROJET.firebaseapp.com",
+    projectId: "VOTRE_PROJET",
+    storageBucket: "VOTRE_PROJET.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "1:000000000000:web:xxxxxxxxxxxxxxxxxxxxxxxx"
+  };
+  // ============================================================
+
+  var STORAGE_KEY = "wh-registre-tables-v1";
+  var FIELDS = ["table", "jeu", "decors", "j1", "j2", "j3", "j4"];
+
+  function uid(prefix){ return prefix + Math.random().toString(36).slice(2, 9); }
+
+  function emptyRows(){
+    var rows = [];
+    for (var i = 1; i <= 5; i++){
+      rows.push({ id: uid("r"), table: "Table " + i, jeu: "", decors: "", j1: "", j2: "", j3: "", j4: "" });
+    }
+    return rows;
+  }
+
+  function defaultState(){
+    return {
+      activeId: "d1",
+      dates: [
+        { id: "d1", label: "26/09/2026", rows: [
+          { id: uid("r"), table: "Table 1", jeu: "40k", decors: "40k", j1: "yves", j2: "tchoop", j3: "", j4: "" },
+          { id: uid("r"), table: "Table 2", jeu: "40k", decors: "asso", j1: "king", j2: "De-Cypher", j3: "", j4: "" },
+          { id: uid("r"), table: "Table 3", jeu: "40k", decors: "Chris", j1: "Chris", j2: "Crab", j3: "", j4: "" },
+          { id: uid("r"), table: "Table 4", jeu: "40k", decors: "", j1: "", j2: "", j3: "", j4: "" },
+          { id: uid("r"), table: "Table 5", jeu: "", decors: "", j1: "", j2: "", j3: "", j4: "" }
+        ]},
+        { id: "d2", label: "10/10/2026", rows: emptyRows() },
+        { id: "d3", label: "17/10/2026", rows: emptyRows() },
+        { id: "d4", label: "24/10/2026", rows: emptyRows() },
+        { id: "d5", label: "31/10/2026", rows: emptyRows() }
+      ]
+    };
+  }
+
+  function loadLocalState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw){
+        var parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.dates) && parsed.dates.length) return parsed;
+      }
+    } catch(e){ console.warn("Lecture locale impossible.", e); }
+    return defaultState();
+  }
+
+  var state = loadLocalState();
+  var db = null, docRef = null, dbAvailable = false, seededRemote = false;
+  var saveTimer = null, typingGuardUntil = 0, pendingRemote = null, renamingTabId = null;
+
+  function setStatus(mode, text){
+    var dot = document.getElementById("statusDot");
+    dot.className = "status-dot" + (mode ? " " + mode : "");
+    document.getElementById("statusText").textContent = text;
+  }
+
+  function flashSaved(text){
+    var indicator = document.getElementById("saveIndicator");
+    indicator.textContent = text;
+    indicator.classList.add("pulse");
+    setTimeout(function(){ indicator.classList.remove("pulse"); }, 900);
+  }
+
+  function persistState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+    if (dbAvailable && docRef){
+      setDoc(docRef, state).then(function(){
+        flashSaved("Enregistré \u2014 visible par tous");
+      }).catch(function(err){
+        console.warn("Écriture Firestore impossible", err);
+        flashSaved("Non synchronisé \u2014 vérifiez la connexion");
+      });
+    } else {
+      flashSaved("Enregistré sur cet appareil uniquement");
+    }
+  }
+
+  function scheduleSave(){
+    typingGuardUntil = Date.now() + 1500;
+    document.getElementById("saveIndicator").textContent = "Modification\u2026";
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(persistState, 500);
+  }
+
+  function markStructuralChange(){
+    typingGuardUntil = Date.now() + 300;
+    persistState();
+  }
+
+  function activeDate(){
+    var found = null;
+    state.dates.forEach(function(d){ if (d.id === state.activeId) found = d; });
+    return found || state.dates[0];
+  }
+
+  function parseFrDate(label){
+    var parts = label.split("/");
+    if (parts.length !== 3) return null;
+    var d = parseInt(parts[0], 10), m = parseInt(parts[1], 10), y = parseInt(parts[2], 10);
+    if (!d || !m || !y) return null;
+    return new Date(y, m - 1, d);
+  }
+
+  function formatFrDate(date){
+    var d = String(date.getDate()).padStart(2, "0");
+    var m = String(date.getMonth() + 1).padStart(2, "0");
+    var y = date.getFullYear();
+    return d + "/" + m + "/" + y;
+  }
+
+  function nextSaturdayLabel(){
+    var last = state.dates[state.dates.length - 1];
+    var base = parseFrDate(last.label) || new Date();
+    base.setDate(base.getDate() + 7);
+    return formatFrDate(base);
+  }
+
+  function renderTabs(){
+    if (renamingTabId) return;
+    var nav = document.getElementById("dateTabs");
+    var existing = Array.from(nav.querySelectorAll(".date-tab"));
+    var existingIds = existing.map(function(el){ return el.dataset.dateId; });
+    var newIds = state.dates.map(function(d){ return d.id; });
+    var sameStructure = existingIds.length === newIds.length && existingIds.every(function(id, i){ return id === newIds[i]; });
+
+    if (sameStructure){
+      existing.forEach(function(el, i){
+        var d = state.dates[i];
+        el.classList.toggle("active", d.id === state.activeId);
+        var labelSpan = el.querySelector(".tab-label");
+        if (labelSpan && labelSpan.textContent !== d.label) labelSpan.textContent = d.label;
+      });
+      return;
+    }
+
+    nav.innerHTML = "";
+    state.dates.forEach(function(d){ nav.appendChild(buildTab(d)); });
+    var addBtn = document.createElement("div");
+    addBtn.className = "add-date";
+    addBtn.title = "Ajouter un samedi";
+    addBtn.textContent = "+";
+    addBtn.addEventListener("click", function(){
+      var newDate = { id: uid("d"), label: nextSaturdayLabel(), rows: emptyRows() };
+      state.dates.push(newDate);
+      state.activeId = newDate.id;
+      markStructuralChange();
+      render();
+    });
+    nav.appendChild(addBtn);
+  }
+
+  function buildTab(d){
+    var tab = document.createElement("div");
+    tab.className = "date-tab" + (d.id === state.activeId ? " active" : "");
+    tab.dataset.dateId = d.id;
+    tab.setAttribute("role", "button");
+    tab.setAttribute("tabindex", "0");
+
+    var labelSpan = document.createElement("span");
+    labelSpan.className = "tab-label";
+    labelSpan.textContent = d.label;
+    tab.appendChild(labelSpan);
+
+    var del = document.createElement("span");
+    del.className = "del-date";
+    del.textContent = "\u00d7";
+    del.title = "Supprimer ce samedi";
+    del.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      if (state.dates.length <= 1){
+        flashSaved("Impossible \u2014 il faut garder au moins un samedi");
+        return;
+      }
+      if (confirm("Supprimer le samedi " + d.label + " et son contenu ?")){
+        state.dates = state.dates.filter(function(x){ return x.id !== d.id; });
+        if (state.activeId === d.id) state.activeId = state.dates[0].id;
+        markStructuralChange();
+        render();
+      }
+    });
+    tab.appendChild(del);
+
+    tab.addEventListener("click", function(){
+      if (state.activeId !== d.id){ state.activeId = d.id; render(); }
+    });
+    tab.addEventListener("keydown", function(ev){
+      if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); tab.click(); }
+    });
+    tab.addEventListener("dblclick", function(ev){ ev.stopPropagation(); startRename(tab, d); });
+
+    return tab;
+  }
+
+  function startRename(tab, d){
+    renamingTabId = d.id;
+    tab.innerHTML = "";
+    var input = document.createElement("input");
+    input.type = "text";
+    input.value = d.label;
+    tab.appendChild(input);
+    input.focus();
+    input.select();
+    function commit(){
+      var v = input.value.trim();
+      if (v) d.label = v;
+      renamingTabId = null;
+      markStructuralChange();
+      render();
+    }
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", function(ev){
+      if (ev.key === "Enter") input.blur();
+      if (ev.key === "Escape"){ renamingTabId = null; render(); }
+    });
+  }
+
+  function buildRow(row){
+    var tr = document.createElement("tr");
+    tr.dataset.rowId = row.id;
+    FIELDS.forEach(function(field){
+      var td = document.createElement("td");
+      if (field === "table") td.className = "table-name";
+      var input = document.createElement("input");
+      input.type = "text";
+      input.value = row[field];
+      input.dataset.field = field;
+      if (field !== "table") input.placeholder = "\u2014";
+      input.addEventListener("input", function(){
+        row[field] = input.value;
+        scheduleSave();
+      });
+      td.appendChild(input);
+      tr.appendChild(td);
+    });
+
+    var actionTd = document.createElement("td");
+    var del = document.createElement("button");
+    del.type = "button";
+    del.className = "del-row";
+    del.textContent = "\u00d7";
+    del.title = "Supprimer cette table";
+    del.addEventListener("click", function(){
+      if (confirm("Supprimer " + row.table + " ?")){
+        var d = activeDate();
+        d.rows = d.rows.filter(function(r2){ return r2.id !== row.id; });
+        markStructuralChange();
+        renderTable();
+      }
+    });
+    actionTd.appendChild(del);
+    tr.appendChild(actionTd);
+    return tr;
+  }
+
+  function updateRowValues(tr, row){
+    FIELDS.forEach(function(field){
+      var input = tr.querySelector('input[data-field="' + field + '"]');
+      if (input && document.activeElement !== input && input.value !== row[field]){
+        input.value = row[field];
+      }
+    });
+  }
+
+  function renderTable(){
+    var d = activeDate();
+    document.getElementById("activeDateLabel").textContent = "Samedi " + d.label;
+    var body = document.getElementById("tableBody");
+    var existingRowEls = Array.from(body.children);
+    var existingIds = existingRowEls.map(function(el){ return el.dataset.rowId; });
+    var newIds = d.rows.map(function(r){ return r.id; });
+    var sameStructure = existingIds.length === newIds.length && existingIds.every(function(id, i){ return id === newIds[i]; });
+
+    if (sameStructure){
+      d.rows.forEach(function(row, i){ updateRowValues(existingRowEls[i], row); });
+      return;
+    }
+    body.innerHTML = "";
+    d.rows.forEach(function(row){ body.appendChild(buildRow(row)); });
+  }
+
+  function render(){ renderTabs(); renderTable(); }
+
+  document.getElementById("addRowBtn").addEventListener("click", function(){
+    var d = activeDate();
+    d.rows.push({ id: uid("r"), table: "Table " + (d.rows.length + 1), jeu: "", decors: "", j1: "", j2: "", j3: "", j4: "" });
+    markStructuralChange();
+    renderTable();
+  });
+
+  document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+
+  render();
+
+  setInterval(function(){
+    if (pendingRemote && Date.now() >= typingGuardUntil){
+      state = pendingRemote;
+      pendingRemote = null;
+      render();
+    }
+  }, 800);
+
+  function handleSnapshot(snap){
+    if (!snap.exists()){
+      if (!seededRemote){
+        seededRemote = true;
+        setDoc(docRef, state).catch(function(e){ console.warn("Amorçage impossible", e); });
+      }
+      setStatus("shared", "Registre partagé \u2014 envoi de la version initiale\u2026");
+      return;
+    }
+    var remote = snap.data();
+    if (!remote || !Array.isArray(remote.dates) || !remote.dates.length) return;
+    setStatus("shared", "Registre partagé \u2014 synchronisé avec tous les membres");
+    if (Date.now() < typingGuardUntil){ pendingRemote = remote; return; }
+    state = remote;
+    pendingRemote = null;
+    render();
+  }
+
+  function handleDbError(err){
+    console.warn("Firestore error", err);
+    setStatus("error", "Connexion au registre partagé perdue \u2014 vérifiez la configuration ou votre connexion");
+  }
+
+  var looksUnconfigured =
+    !firebaseConfig.apiKey || firebaseConfig.apiKey.indexOf("VOTRE_") === 0 ||
+    !firebaseConfig.projectId || firebaseConfig.projectId.indexOf("VOTRE_") === 0;
+
+  if (looksUnconfigured){
+    document.getElementById("configWarning").hidden = false;
+    setStatus("local", "Stockage local uniquement \u2014 configuration Firebase manquante");
+  } else {
+    try{
+      var fbApp = initializeApp(firebaseConfig);
+      db = getFirestore(fbApp);
+      dbAvailable = true;
+      docRef = doc(db, "registre", "etat");
+      onSnapshot(docRef, handleSnapshot, handleDbError);
+    } catch(e){
+      console.warn("Initialisation Firebase impossible", e);
+      document.getElementById("configWarning").hidden = false;
+      setStatus("error", "Configuration Firebase invalide");
+    }
+  }
+</script>
+</body>
+</html>
