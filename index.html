@@ -13,6 +13,12 @@
 .brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border:2px solid var(--accent);border-radius:12px;overflow:hidden;background:#12151a;display:flex;align-items:center;justify-content:center;flex:none}.logo img{width:100%;height:100%;object-fit:contain}
 h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-top:3px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:9px;cursor:pointer}.btn:hover{border-color:#596170}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:#ffb0b0}
 .dates{display:flex;gap:8px;overflow:auto;padding-bottom:10px;margin-bottom:8px}.date-tab{white-space:nowrap;padding:10px 16px;border:1px solid var(--line);background:var(--panel);border-radius:9px;color:var(--muted);cursor:pointer}.date-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.note-row{display:flex;align-items:center;gap:12px;margin:0 0 14px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 14px}
+.note-row label{color:var(--muted);font-size:12px;white-space:nowrap;margin:0}
+.note-row input{background:transparent;border:none;border-radius:0;padding:8px 0;font-size:14px;color:var(--text)}
+.note-row input:focus{outline:none}
+.note-row input:disabled{color:var(--muted);cursor:not-allowed}
+.note-status{font-size:11px;color:var(--muted);min-width:80px;text-align:right;white-space:nowrap}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 18px}.summary{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .table-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.card-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:var(--panel2);border-bottom:1px solid var(--line)}.table-name{font-size:17px;font-weight:800}.status{font-size:11px;padding:5px 8px;border-radius:20px;background:#29302a;color:#8fe0ae}
 .card-body{padding:14px}.row{display:flex;gap:10px;margin:9px 0}.label{width:78px;color:var(--muted);font-size:12px;padding-top:3px}.value{font-weight:600;word-break:break-word}.players{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}.player{background:#12151a;border:1px solid var(--line);padding:9px;border-radius:8px}.player small{display:block;color:var(--muted);font-size:10px;margin-bottom:2px}.actions{display:flex;gap:8px;margin-top:14px}.actions .btn{flex:1;padding:8px}
@@ -20,7 +26,7 @@ h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-to
 .modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}.modal-wrap.open{display:flex}.modal{width:min(620px,100%);background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;box-shadow:0 20px 60px #0008}.modal h2{margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field.full{grid-column:1/-1}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;background:#11141a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .notice{margin-bottom:14px;padding:10px 12px;border:1px solid #60452f;background:#241b15;color:#e9b58f;border-radius:9px;font-size:13px;display:none}.notice.show{display:block}
 .name-preview{padding:10px;background:#11141a;border:1px solid var(--line);border-radius:8px;font-weight:700;color:var(--accent2)}
-@media(max-width:650px){.app{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}header{align-items:flex-start}.toolbar{align-items:stretch;flex-direction:column}.grid{grid-template-columns:1fr}}
+@media(max-width:650px){.app{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}header{align-items:flex-start}.toolbar{align-items:stretch;flex-direction:column}.grid{grid-template-columns:1fr}.note-row{flex-direction:column;align-items:stretch;gap:4px}.note-status{text-align:left}}
 </style>
 </head>
 <body>
@@ -30,6 +36,13 @@ h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-to
 </header>
 <div id="notice" class="notice"></div>
 <div class="dates" id="dates"></div>
+
+<div class="note-row">
+<label for="dateNote">Note du samedi</label>
+<input id="dateNote" type="text" maxlength="200" placeholder="Tournoi 2000 pts, initiation, thème..." disabled>
+<span class="note-status" id="noteStatus"></span>
+</div>
+
 <div class="toolbar"><div class="summary" id="summary">Chargement…</div><button class="btn primary" id="addTableBtn">＋ Ajouter une table</button></div>
 <div class="grid" id="tables"><div class="loading">Chargement des données…</div></div>
 </div>
@@ -48,9 +61,6 @@ h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-to
 <script>
 // ============================================================
 // CONFIGURATION SUPABASE
-// Remplace uniquement ces 2 valeurs par celles de ton projet.
-// Supabase Dashboard > Project Settings > API
-// Utilise la clé "anon/public", JAMAIS la service_role key.
 // ============================================================
 const SUPABASE_URL = "https://syuaapflawgugaroyifl.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_dotnNWbuJlVYrwF7MwZTpQ_f8Jy7aq7";
@@ -59,10 +69,13 @@ const configured = !SUPABASE_URL.includes("TON_URL") && !SUPABASE_ANON_KEY.inclu
 const supabaseClient = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 let dates=[], currentDateId=null, editId=null, currentTables=[], computedTableName="";
-const MAX_DATES = 10;                       // nombre de samedis gardés en rotation
-const SYNC_INTERVAL_MS = 30*60*1000;        // resynchronisation toutes les 30 min
+const MAX_DATES = 10;
+const SYNC_INTERVAL_MS = 30*60*1000;
+const NOTE_DEBOUNCE_MS = 800;
 
 const datesEl=document.getElementById("dates"), tablesEl=document.getElementById("tables"), summaryEl=document.getElementById("summary"), notice=document.getElementById("notice"), modalWrap=document.getElementById("modalWrap");
+const noteInput=document.getElementById("dateNote"), noteStatus=document.getElementById("noteStatus");
+let noteTimer=null, lastSavedNote="";
 
 function showNotice(msg){notice.textContent=msg;notice.classList.add("show");}
 function clearNotice(){notice.classList.remove("show");}
@@ -72,7 +85,6 @@ function pad2(n){return String(n).padStart(2,"0");}
 function toISO(d){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
 function toLabel(d){return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;}
 
-// Retourne les N prochains samedis (aujourd'hui s'il s'agit d'un samedi).
 function getNextSaturdays(count){
  const list=[];
  const d=new Date(); d.setHours(0,0,0,0);
@@ -84,11 +96,6 @@ function getNextSaturdays(count){
  return list;
 }
 
-// ============================================================
-// ROTATION DES 10 PROCHAINS SAMEDIS
-// - crée les samedis manquants
-// - supprime toutes les dates hors fenêtre (passées ou trop loin)
-// ============================================================
 async function syncSaturdays(){
  if(!configured) return;
 
@@ -104,12 +111,10 @@ async function syncSaturdays(){
  const rows = existing || [];
  const existingSet = new Set(rows.map(r=>r.date_value));
 
- // Samedis manquants à créer
  const toInsert = wanted
   .filter(d=>!existingSet.has(toISO(d)))
-  .map(d=>({ date_value: toISO(d), label: toLabel(d) }));
+  .map(d=>({ date_value: toISO(d), label: toLabel(d), note: "" }));
 
- // Dates obsolètes (passées ou au-delà des 10 prochains samedis)
  const toDelete = rows.filter(r=>!wantedSet.has(r.date_value)).map(r=>r.id);
 
  if(toInsert.length){
@@ -126,12 +131,11 @@ async function syncSaturdays(){
 
 async function loadDates(){
  if(!configured){
-  showNotice("Supabase n'est pas encore configuré. Renseigne SUPABASE_URL et SUPABASE_ANON_KEY dans le fichier.");
+  showNotice("Supabase n'est pas encore configuré.");
   dates=[];renderDates();renderTables();return;
  }
  clearNotice();
 
- // Rotation : on aligne la base sur les 10 prochains samedis
  await syncSaturdays();
 
  const {data,error}=await supabaseClient.from("warhammer_dates").select("*").order("date_value",{ascending:true});
@@ -151,7 +155,14 @@ async function loadTables(){
 
 function renderDates(){
  datesEl.innerHTML="";
- dates.forEach(d=>{const b=document.createElement("button");b.className="date-tab"+(d.id===currentDateId?" active":"");b.textContent=d.label;b.onclick=async()=>{currentDateId=d.id;renderDates();await loadTables();};datesEl.appendChild(b);});
+ dates.forEach(d=>{
+  const b=document.createElement("button");
+  b.className="date-tab"+(d.id===currentDateId?" active":"");
+  b.textContent=d.label;
+  b.onclick=async()=>{currentDateId=d.id;renderDates();await loadTables();};
+  datesEl.appendChild(b);
+ });
+ updateNoteField();
 }
 
 function renderTables(){
@@ -165,6 +176,61 @@ function renderTables(){
 <div class="actions"><button class="btn" onclick="editTable('${t.id}')">Modifier</button><button class="btn danger" onclick="deleteTable('${t.id}')">Supprimer</button></div></div></article>`).join("");
 }
 
+// ---------- Champ note libre par samedi ----------
+function updateNoteField(){
+ if(!currentDateId){
+  noteInput.value="";
+  noteInput.disabled=true;
+  noteInput.placeholder="Aucune date sélectionnée";
+  noteStatus.textContent="";
+  lastSavedNote="";
+  return;
+ }
+ const d=dates.find(x=>x.id===currentDateId);
+ noteInput.disabled=false;
+ noteInput.placeholder="Tournoi 2000 pts, initiation, thème...";
+ noteInput.value=d?.note||"";
+ lastSavedNote=noteInput.value;
+ noteStatus.textContent="";
+}
+
+async function saveNote(){
+ if(!configured || !currentDateId) return;
+ const d=dates.find(x=>x.id===currentDateId);
+ if(!d) return;
+ const value=noteInput.value.trim();
+ if(value===lastSavedNote){
+  // Rien de neuf, on nettoie juste le statut
+  if(noteStatus.textContent==="…") noteStatus.textContent="";
+  return;
+ }
+ noteStatus.textContent="Enregistrement…";
+ const {error}=await supabaseClient
+  .from("warhammer_dates")
+  .update({ note: value })
+  .eq("id", currentDateId);
+ if(error){
+  noteStatus.textContent="Erreur";
+  showNotice("Erreur note : "+error.message+" (colonne 'note' ajoutée dans warhammer_dates ?)");
+  return;
+ }
+ d.note=value;
+ lastSavedNote=value;
+ noteStatus.textContent="Enregistré ✓";
+ setTimeout(()=>{ if(noteStatus.textContent==="Enregistré ✓") noteStatus.textContent=""; },1500);
+}
+
+noteInput.addEventListener("input",()=>{
+ noteStatus.textContent="…";
+ clearTimeout(noteTimer);
+ noteTimer=setTimeout(saveNote, NOTE_DEBOUNCE_MS);
+});
+noteInput.addEventListener("blur",()=>{
+ clearTimeout(noteTimer);
+ saveNote();
+});
+
+// ---------- Modale table ----------
 function openModal(t=null){
  editId=t?.id||null;document.getElementById("modalTitle").textContent=t?"Modifier la table":"Ajouter une table";
  computedTableName = t ? t.name : `Table ${currentTables.length+1}`;
@@ -187,7 +253,7 @@ document.getElementById("tableForm").addEventListener("submit",async e=>{
 document.getElementById("addTableBtn").onclick=()=>{if(!currentDateId){showNotice("Aucune date disponible pour le moment.");return;}openModal();};
 document.getElementById("cancelBtn").onclick=closeModal;modalWrap.addEventListener("click",e=>{if(e.target===modalWrap)closeModal();});
 
-// Resynchronisation périodique tant que la page reste ouverte
+// Resynchronisation périodique
 setInterval(async ()=>{ if(!configured) return; await loadDates(); }, SYNC_INTERVAL_MS);
 
 loadDates();
