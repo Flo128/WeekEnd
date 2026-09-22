@@ -188,7 +188,7 @@ function updateNoteField(){
  }
  const d=dates.find(x=>x.id===currentDateId);
  noteInput.disabled=false;
- noteInput.placeholder="Tournoi 2000 pts, initiation, thème...";
+ noteInput.placeholder="";
  noteInput.value=d?.note||"";
  lastSavedNote=noteInput.value;
  noteStatus.textContent="";
