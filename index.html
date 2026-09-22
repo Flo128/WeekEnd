@@ -9,7 +9,7 @@
 :root{--bg:#0f1115;--panel:#181b22;--panel2:#20242d;--line:#343a46;--text:#f1f3f5;--muted:#9da5b1;--accent:#d66b32;--accent2:#ef9b5c;--danger:#d95d5d}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
 .app{max-width:1250px;margin:auto;padding:20px}header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
-.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border:2px solid var(--accent);border-radius:12px;display:grid;place-items:center;font-weight:900;color:var(--accent2)}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border:2px solid var(--accent);border-radius:12px;overflow:hidden;background:#12151a;display:flex;align-items:center;justify-content:center;flex:none}.logo img{width:100%;height:100%;object-fit:contain}
 h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-top:3px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:9px;cursor:pointer}.btn:hover{border-color:#596170}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:#ffb0b0}
 .dates{display:flex;gap:8px;overflow:auto;padding-bottom:10px;margin-bottom:8px}.date-tab{white-space:nowrap;padding:10px 16px;border:1px solid var(--line);background:var(--panel);border-radius:9px;color:var(--muted);cursor:pointer}.date-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 18px}.summary{color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
@@ -18,13 +18,14 @@ h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-to
 .empty{padding:40px;text-align:center;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}.loading{text-align:center;padding:40px;color:var(--muted)}
 .modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}.modal-wrap.open{display:flex}.modal{width:min(620px,100%);background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;box-shadow:0 20px 60px #0008}.modal h2{margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field.full{grid-column:1/-1}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;background:#11141a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .notice{margin-bottom:14px;padding:10px 12px;border:1px solid #60452f;background:#241b15;color:#e9b58f;border-radius:9px;font-size:13px;display:none}.notice.show{display:block}
+.name-preview{padding:10px;background:#11141a;border:1px solid var(--line);border-radius:8px;font-weight:700;color:var(--accent2)}
 @media(max-width:650px){.app{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}header{align-items:flex-start}.toolbar{align-items:stretch;flex-direction:column}.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-<div class="brand"><div class="logo">40K</div><div><h1>Organisation des parties</h1><div class="subtitle">Planning Warhammer partagé — Supabase</div></div></div>
+<div class="brand"><div class="logo"><img src="https://media.discordapp.net/attachments/1379385028919820359/1417888895210618921/f423369b-b7f6-438e-8fe4-307099f07ca0.png?ex=6ab341af&amp;is=6ab1f02f&amp;hm=725b5fb50f9f280900f010a527575d0f8bc8791de63fd2ff477aedf79e45783c&amp;=&amp;format=webp&amp;quality=lossless" alt="Logo"></div><div><h1>Organisation des parties</h1><div class="subtitle">Planning Warhammer partagé — Supabase</div></div></div>
 <button class="btn primary" id="addDateBtn">＋ Nouvelle date</button>
 </header>
 <div id="notice" class="notice"></div>
@@ -36,12 +37,23 @@ h1{font-size:22px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-to
 <div class="modal-wrap" id="modalWrap"><div class="modal">
 <h2 id="modalTitle">Ajouter une table</h2>
 <form id="tableForm"><div class="form-grid">
-<div class="field"><label>Nom de la table</label><input id="tableName" required placeholder="Table 1"></div>
+<div class="field full"><label>Nom de la table (automatique)</label><div class="name-preview" id="tableNamePreview">Table 1</div></div>
 <div class="field"><label>Jeu</label><input id="game" placeholder="40k"></div>
 <div class="field"><label>Décors</label><input id="terrain" placeholder="40k, asso, désert..."></div>
 <div class="field"><label>Joueur 1</label><input id="p1"></div><div class="field"><label>Joueur 2</label><input id="p2"></div>
 <div class="field"><label>Joueur 3</label><input id="p3"></div><div class="field"><label>Joueur 4</label><input id="p4"></div>
 </div><div class="modal-actions"><button type="button" class="btn" id="cancelBtn">Annuler</button><button type="submit" class="btn primary">Enregistrer</button></div></form>
+</div></div>
+
+<div class="modal-wrap" id="dateModalWrap"><div class="modal">
+<h2>Nouvelle date</h2>
+<form id="dateForm">
+<div class="field full">
+<label>Choisir un samedi</label>
+<select id="saturdaySelect" required></select>
+</div>
+<div class="modal-actions"><button type="button" class="btn" id="dateCancelBtn">Annuler</button><button type="submit" class="btn primary">Ajouter</button></div>
+</form>
 </div></div>
 
 <script>
@@ -57,13 +69,30 @@ const SUPABASE_ANON_KEY = "sb_publishable_dotnNWbuJlVYrwF7MwZTpQ_f8Jy7aq7";
 const configured = !SUPABASE_URL.includes("TON_URL") && !SUPABASE_ANON_KEY.includes("TA_CLE");
 const supabaseClient = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let dates=[], currentDateId=null, editId=null, currentTables=[];
+let dates=[], currentDateId=null, editId=null, currentTables=[], computedTableName="";
+const MAX_DATES=10;
 
-const datesEl=document.getElementById("dates"), tablesEl=document.getElementById("tables"), summaryEl=document.getElementById("summary"), notice=document.getElementById("notice"), modalWrap=document.getElementById("modalWrap");
+const datesEl=document.getElementById("dates"), tablesEl=document.getElementById("tables"), summaryEl=document.getElementById("summary"), notice=document.getElementById("notice"), modalWrap=document.getElementById("modalWrap"), dateModalWrap=document.getElementById("dateModalWrap");
 
 function showNotice(msg){notice.textContent=msg;notice.classList.add("show");}
 function clearNotice(){notice.classList.remove("show");}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+
+function pad2(n){return String(n).padStart(2,"0");}
+function toISO(d){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
+function toLabel(d){return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`;}
+function getUpcomingSaturdays(count){
+ const list=[];const existing=new Set(dates.map(x=>x.date_value));
+ let d=new Date();d.setHours(0,0,0,0);
+ while(d.getDay()!==6){d.setDate(d.getDate()+1);}
+ let guard=0;
+ while(list.length<count && guard<400){
+  const iso=toISO(d);
+  if(!existing.has(iso)) list.push(new Date(d));
+  d.setDate(d.getDate()+7);guard++;
+ }
+ return list;
+}
 
 async function loadDates(){
  if(!configured){showNotice("Supabase n'est pas encore configuré. Renseigne SUPABASE_URL et SUPABASE_ANON_KEY dans le fichier.");dates=[];renderDates();renderTables();return;}
@@ -97,9 +126,11 @@ function renderTables(){
 }
 function openModal(t=null){
  editId=t?.id||null;document.getElementById("modalTitle").textContent=t?"Modifier la table":"Ajouter une table";
- document.getElementById("tableName").value=t?.name||"";document.getElementById("game").value=t?.game||"40k";document.getElementById("terrain").value=t?.terrain||"";
+ computedTableName = t ? t.name : `Table ${currentTables.length+1}`;
+ document.getElementById("tableNamePreview").textContent = computedTableName;
+ document.getElementById("game").value=t?.game||"40k";document.getElementById("terrain").value=t?.terrain||"";
  ["p1","p2","p3","p4"].forEach((id,i)=>document.getElementById(id).value=t?.[`player${i+1}`]||"");
- modalWrap.classList.add("open");setTimeout(()=>document.getElementById("tableName").focus(),50);
+ modalWrap.classList.add("open");setTimeout(()=>document.getElementById("game").focus(),50);
 }
 function closeModal(){modalWrap.classList.remove("open");}
 window.editTable=id=>openModal(currentTables.find(t=>t.id===id));
@@ -107,7 +138,7 @@ window.deleteTable=async id=>{const t=currentTables.find(x=>x.id===id);if(!confi
 
 document.getElementById("tableForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!configured)return;
- const payload={date_id:currentDateId,name:document.getElementById("tableName").value.trim(),game:document.getElementById("game").value.trim(),terrain:document.getElementById("terrain").value.trim(),
+ const payload={date_id:currentDateId,name:computedTableName,game:document.getElementById("game").value.trim(),terrain:document.getElementById("terrain").value.trim(),
  player1:document.getElementById("p1").value.trim(),player2:document.getElementById("p2").value.trim(),player3:document.getElementById("p3").value.trim(),player4:document.getElementById("p4").value.trim()};
  let result=editId?await supabaseClient.from("warhammer_tables").update(payload).eq("id",editId):await supabaseClient.from("warhammer_tables").insert(payload);
  if(result.error)showNotice("Erreur : "+result.error.message);else{closeModal();await loadTables();}
@@ -115,13 +146,45 @@ document.getElementById("tableForm").addEventListener("submit",async e=>{
 document.getElementById("addTableBtn").onclick=()=>{if(!currentDateId){showNotice("Crée d'abord une date.");return;}openModal();};
 document.getElementById("cancelBtn").onclick=closeModal;modalWrap.addEventListener("click",e=>{if(e.target===modalWrap)closeModal();});
 
-document.getElementById("addDateBtn").onclick=async()=>{
- if(!configured)return;
- const d=prompt("Date (ex : 07/11/2026) ?");
- if(!d)return;
- const {data,error}=await supabaseClient.from("warhammer_dates").insert({label:d,date_value:d}).select().single();
- if(error)showNotice("Erreur : "+error.message);else{currentDateId=data.id;await loadDates();}
-};
+function openDateModal(){
+ const sel=document.getElementById("saturdaySelect");
+ sel.innerHTML="";
+ getUpcomingSaturdays(15).forEach(d=>{
+  const opt=document.createElement("option");
+  opt.value=toISO(d);opt.textContent=toLabel(d);
+  sel.appendChild(opt);
+ });
+ dateModalWrap.classList.add("open");
+}
+function closeDateModal(){dateModalWrap.classList.remove("open");}
+
+async function enforceMaxDates(){
+ const {data,error}=await supabaseClient.from("warhammer_dates").select("id,date_value").order("date_value",{ascending:true});
+ if(error||!data)return;
+ const excess=data.length-MAX_DATES;
+ if(excess>0){
+  const toDelete=data.slice(0,excess).map(x=>x.id);
+  await supabaseClient.from("warhammer_dates").delete().in("id",toDelete);
+  if(toDelete.includes(currentDateId))currentDateId=null;
+ }
+}
+
+document.getElementById("addDateBtn").onclick=()=>{if(!configured)return;openDateModal();};
+document.getElementById("dateCancelBtn").onclick=closeDateModal;
+dateModalWrap.addEventListener("click",e=>{if(e.target===dateModalWrap)closeDateModal();});
+
+document.getElementById("dateForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const iso=document.getElementById("saturdaySelect").value;
+ if(!iso)return;
+ const label=toLabel(new Date(iso+"T00:00:00"));
+ const {data,error}=await supabaseClient.from("warhammer_dates").insert({label,date_value:iso}).select().single();
+ if(error){showNotice("Erreur : "+error.message);return;}
+ closeDateModal();
+ currentDateId=data.id;
+ await enforceMaxDates();
+ await loadDates();
+});
 
 loadDates();
 </script>
