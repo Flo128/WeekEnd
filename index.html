@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lanciers — Organisation Samedi</title>
+<title>Warhammer — Planning partagé</title>
 <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1379385028919820359/1417888895210618921/f423369b-b7f6-438e-8fe4-307099f07ca0.png?ex=6ab341af&is=6ab1f02f&hm=725b5fb50f9f280900f010a527575d0f8bc8791de63fd2ff477aedf79e45783c&=&format=webp&quality=lossless">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -72,6 +72,7 @@ const supabaseClient = configured ? supabase.createClient(SUPABASE_URL, SUPABASE
 
 let dates=[], currentDateId=null, editId=null, currentTables=[], computedTableName="";
 const MAX_DATES=10;
+const PURGE_INTERVAL_MS = 30*60*1000; // purge périodique toutes les 30 min
 
 const datesEl=document.getElementById("dates"), tablesEl=document.getElementById("tables"), summaryEl=document.getElementById("summary"), notice=document.getElementById("notice"), modalWrap=document.getElementById("modalWrap"), dateModalWrap=document.getElementById("dateModalWrap");
 
@@ -95,9 +96,42 @@ function getUpcomingSaturdays(count){
  return list;
 }
 
+// ============================================================
+// PURGE DES DATES PASSÉES
+// Supprime toutes les dates dont date_value est strictement
+// antérieur à aujourd'hui (heure locale).
+// ============================================================
+async function purgePastDates(){
+ if(!configured) return;
+ const today = toISO(new Date());
+
+ const {data, error} = await supabaseClient
+  .from("warhammer_dates")
+  .select("id,date_value")
+  .lt("date_value", today);
+
+ if(error){ showNotice("Erreur purge dates passées : " + error.message); return; }
+ if(!data || !data.length) return;
+
+ const ids = data.map(x => x.id);
+
+ const {error:delError} = await supabaseClient
+  .from("warhammer_dates")
+  .delete()
+  .in("id", ids);
+
+ if(delError){ showNotice("Suppression dates passées impossible : " + delError.message); return; }
+
+ if(ids.includes(currentDateId)) currentDateId = null;
+}
+
 async function loadDates(){
  if(!configured){showNotice("Supabase n'est pas encore configuré. Renseigne SUPABASE_URL et SUPABASE_ANON_KEY dans le fichier.");dates=[];renderDates();renderTables();return;}
  clearNotice();
+
+ // On purge d'abord les dates passées
+ await purgePastDates();
+
  const {data,error}=await supabaseClient.from("warhammer_dates").select("*").order("date_value",{ascending:true});
  if(error){showNotice("Erreur Supabase : "+error.message);return;}
  dates=data||[];
@@ -222,6 +256,18 @@ document.getElementById("dateForm").addEventListener("submit",async e=>{
  // 3) Recharge la liste (loadDates appelle déjà loadTables)
  await loadDates();
 });
+
+// Purge périodique tant que la page reste ouverte
+setInterval(async ()=>{
+ if(!configured) return;
+ const before = dates.length;
+ await purgePastDates();
+ const {data} = await supabaseClient.from("warhammer_dates").select("id").order("date_value",{ascending:true});
+ if((data?.length||0) !== before){
+  // Une ou plusieurs dates ont disparu → on recharge l'affichage
+  await loadDates();
+ }
+}, PURGE_INTERVAL_MS);
 
 loadDates();
 </script>
