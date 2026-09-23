@@ -1,0 +1,26 @@
+name: Supabase Keepalive
+
+# Pingue le projet Supabase gratuit pour éviter la mise en veille
+# automatique après 7 jours d'inactivité.
+
+on:
+  schedule:
+    # Tous les lundis à 6h00 UTC (largement < 7 jours d'intervalle)
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {} # permet de le lancer manuellement depuis l'onglet Actions
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Requête de maintien en activité
+        env:
+          SUPABASE_URL: "https://syuaapflawgugaroyifl.supabase.co"
+          SUPABASE_ANON_KEY: "sb_publishable_dotnNWbuJlVYrwF7MwZTpQ_f8Jy7aq7"
+        run: |
+          curl -sS -X GET \
+            "${SUPABASE_URL}/rest/v1/warhammer_dates?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -o /dev/null -w "Statut HTTP: %{http_code}\n" \
+            --fail
