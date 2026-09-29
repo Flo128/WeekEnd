@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lanciers — Guide d'utilisation</title>
+<link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1379385028919820359/1417888895210618921/f423369b-b7f6-438e-8fe4-307099f07ca0.png?ex=6ab341af&is=6ab1f02f&hm=725b5fb50f9f280900f010a527575d0f8bc8791de63fd2ff477aedf79e45783c&=&format=webp&quality=lossless">
+<style>
+:root{--bg:#0f1115;--panel:#181b22;--panel2:#20242d;--line:#343a46;--text:#f1f3f5;--muted:#9da5b1;--accent:#d66b32;--accent2:#ef9b5c;--danger:#d95d5d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.app{max-width:900px;margin:auto;padding:20px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border:2px solid var(--accent);border-radius:12px;overflow:hidden;background:#12151a;display:flex;align-items:center;justify-content:center;flex:none}
+.logo img{width:100%;height:100%;object-fit:contain}
+h1{font-size:22px;margin:0}
+.subtitle{font-size:13px;color:var(--muted);margin-top:3px}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:9px;cursor:pointer;text-decoration:none;display:inline-block;font-size:14px}
+.btn:hover{border-color:#596170}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
+
+.guide{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 28px}
+.guide h2{font-size:19px;margin:34px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line);color:var(--accent2)}
+.guide h2:first-child{margin-top:0}
+.guide h3{font-size:16px;margin:24px 0 8px}
+.guide p{margin:10px 0;font-size:14.5px}
+.guide ul,.guide ol{margin:10px 0;padding-left:22px;font-size:14.5px}
+.guide li{margin:6px 0}
+.guide strong{color:#fff}
+.cmd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#11141a;border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--accent2);font-size:13px;white-space:nowrap}
+code.inline{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#11141a;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px}
+.guide table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+.guide th,.guide td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.guide th{background:var(--panel2);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+.guide tr:nth-child(even) td{background:#15181f}
+.req{color:var(--accent2);font-weight:700}
+.tip{background:#1c1712;border:1px solid #60452f;color:#e9b58f;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:14px 0}
+.warn{background:#241b15;border:1px solid #60452f;color:#e9b58f;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:14px 0}
+.guide a{color:var(--accent2)}
+footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:650px){.app{padding:12px}.guide{padding:18px 16px}.guide table{font-size:12.5px}.guide th,.guide td{padding:6px 7px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">
+    <div class="logo"><img src="https://media.discordapp.net/attachments/1379385028919820359/1417888895210618921/f423369b-b7f6-438e-8fe4-307099f07ca0.png?ex=6ab341af&is=6ab1f02f&hm=725b5fb50f9f280900f010a527575d0f8bc8791de63fd2ff477aedf79e45783c&=&format=webp&quality=lossless" alt="Logo"></div>
+    <div>
+      <h1>Guide d'utilisation</h1>
+      <div class="subtitle">Bot Lanciers &amp; planning partagé</div>
+    </div>
+  </div>
+  <a class="btn primary" href="index.html">← Retour au planning</a>
+</header>
+
+<div class="guide">
+
+  <h2>Comment utiliser un bot Discord</h2>
+  <p>Les bots Discord se pilotent avec des <strong>commandes slash</strong> : des commandes qui commencent par <span class="cmd">/</span>.</p>
+  <ol>
+    <li>Clique dans la zone de texte d'un salon.</li>
+    <li>Tape <span class="cmd">/lanciers-</span> : Discord affiche la liste des commandes qui commencent par ces lettres, avec leur description.</li>
+    <li>Clique sur celle qui t'intéresse, ou continue à taper son nom.</li>
+    <li>Certaines commandes demandent des informations complémentaires (une date, un jeu, des noms de joueurs…). Discord affiche un champ pour chacune, avec sa description. Tu remplis ceux que tu veux, et tu laisses vides ceux que tu n'utilises pas.</li>
+    <li>Pour un champ « <strong>date</strong> », commence à taper et une liste de dates proposées apparaît automatiquement : clique sur celle qui t'intéresse plutôt que de la taper toi-même.</li>
+    <li>Appuie sur <strong>Entrée</strong> pour valider.</li>
+  </ol>
+  <p>Ta commande et la réponse du bot apparaissent dans le salon, comme un message normal. Certaines réponses ne sont visibles que par toi (marquées « Toi seul(e) peux voir celui-ci »), d'autres sont visibles par tout le monde.</p>
+  <div class="tip"><strong>Astuce :</strong> si tu tapes une commande depuis un salon de date (par exemple <span class="cmd">#14-11-2026</span>), tu n'as pas besoin de préciser le champ « date » : le bot utilise automatiquement la date du salon.</div>
+
+  <h2>Les commandes du bot Lanciers</h2>
+
+  <h3><span class="cmd">/lanciers-dates</span></h3>
+  <p>Affiche la liste des prochaines dates de parties disponibles. Ne demande aucune information.</p>
+
+  <h3><span class="cmd">/lanciers-tables</span></h3>
+  <p>Affiche les tables prévues pour une date : joueurs, jeu, décors.</p>
+  <table>
+    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">date</code></td><td>Non</td><td>La date à afficher. Si tu es dans un salon de date, tu peux la laisser vide.</td></tr>
+    </tbody>
+  </table>
+  <p>Le premier message posté pour une date (celui épinglé en haut du salon) <strong>se met à jour tout seul</strong> dès qu'une table change. Si tu relances la commande alors qu'un message à jour existe déjà, tu obtiens un second aperçu, qui lui reste figé au moment où tu l'as demandé — c'est normal, il ne remplace pas l'original.</p>
+
+  <h3><span class="cmd">/lanciers-add-table</span></h3>
+  <p>Ajoute une nouvelle table pour une date.</p>
+  <table>
+    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">date</code></td><td>Non</td><td>La date concernée. Vide = date du salon.</td></tr>
+      <tr><td><code class="inline">jeu</code></td><td>Non</td><td>Ex : 40k, AoS, Kill Team...</td></tr>
+      <tr><td><code class="inline">decors</code></td><td>Non</td><td>Décors ou terrain utilisé</td></tr>
+      <tr><td><code class="inline">joueur1</code> à <code class="inline">joueur4</code></td><td>Non</td><td>Noms des joueurs</td></tr>
+    </tbody>
+  </table>
+  <p>Tu peux ne remplir que les champs que tu connais déjà et compléter plus tard avec <span class="cmd">/lanciers-edit-table</span>.</p>
+
+  <h3><span class="cmd">/lanciers-edit-table</span></h3>
+  <p>Modifie une table déjà créée (par exemple pour ajouter un joueur manquant, ou changer de jeu).</p>
+  <table>
+    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">table</code></td><td class="req">Oui</td><td>La table à modifier. Une liste s'affiche automatiquement quand tu tapes.</td></tr>
+      <tr><td><code class="inline">jeu</code>, <code class="inline">decors</code>, <code class="inline">joueur1</code> à <code class="inline">joueur4</code></td><td>Non</td><td>Seuls les champs que tu remplis sont modifiés, les autres restent inchangés.</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="cmd">/lanciers-delete-table</span></h3>
+  <p>Supprime une table.</p>
+  <table>
+    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">table</code></td><td class="req">Oui</td><td>La table à supprimer. Une liste s'affiche automatiquement.</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="cmd">/lanciers-commentaire</span></h3>
+  <p>Ajoute, affiche ou efface un commentaire général sur une date (par exemple pour annoncer un tournoi, un changement d'horaire, etc.). Le commentaire apparaît directement dans l'embed de la date.</p>
+  <table>
+    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">texte</code></td><td>Non</td><td>Le commentaire à écrire. Laisse vide pour simplement afficher le commentaire actuel.</td></tr>
+      <tr><td><code class="inline">date</code></td><td>Non</td><td>La date concernée. Vide = date du salon.</td></tr>
+      <tr><td><code class="inline">effacer</code></td><td>Non</td><td>Mets sur <code class="inline">True</code> pour supprimer le commentaire existant.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Où voir/gérer les tables autrement ?</h2>
+  <p>En plus du bot, le site <a href="index.html">Organisation des parties</a> permet de voir et gérer les tables depuis un navigateur. Le lien apparaît aussi automatiquement en bas de chaque embed de tables dans Discord.</p>
+
+  <h2>Comment ça marche derrière (pour comprendre l'affichage)</h2>
+  <ul>
+    <li>Un salon est créé automatiquement pour chacun des 10 prochains samedis. Son nom est la date au format <code class="inline">JJ-MM-AAAA</code>.</li>
+    <li>Le message épinglé en haut du salon est le seul à s'actualiser en direct. <strong>Ne le supprime pas.</strong></li>
+    <li>Une fois la date passée depuis une semaine, le salon est déplacé dans la catégorie <strong>Archives</strong> (les messages restent consultables).</li>
+    <li>Un mois après la date, le salon est supprimé automatiquement — pense à noter ou faire une capture de ce que tu veux garder avant.</li>
+  </ul>
+
+</div>
+
+<footer>Bot Lanciers — guide d'utilisation</footer>
+</div>
+</body>
+</html>
