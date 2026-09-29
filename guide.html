@@ -64,34 +64,24 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
     <li>Clique dans la zone de texte d'un salon.</li>
     <li>Tape <span class="cmd">/lanciers-</span> : Discord affiche la liste des commandes qui commencent par ces lettres, avec leur description.</li>
     <li>Clique sur celle qui t'intéresse, ou continue à taper son nom.</li>
-    <li>Certaines commandes demandent des informations complémentaires (une date, un jeu, des noms de joueurs…). Discord affiche un champ pour chacune, avec sa description. Tu remplis ceux que tu veux, et tu laisses vides ceux que tu n'utilises pas.</li>
-    <li>Pour un champ « <strong>date</strong> », commence à taper et une liste de dates proposées apparaît automatiquement : clique sur celle qui t'intéresse plutôt que de la taper toi-même.</li>
+    <li>Certaines commandes demandent des informations complémentaires (un jeu, des noms de joueurs…). Discord affiche un champ pour chacune, avec sa description. Tu remplis ceux que tu veux, et tu laisses vides ceux que tu n'utilises pas.</li>
     <li>Appuie sur <strong>Entrée</strong> pour valider.</li>
   </ol>
   <p>Ta commande et la réponse du bot apparaissent dans le salon, comme un message normal. Certaines réponses ne sont visibles que par toi (marquées « Toi seul(e) peux voir celui-ci »), d'autres sont visibles par tout le monde.</p>
-  <div class="tip"><strong>Astuce :</strong> si tu tapes une commande depuis un salon de date (par exemple <span class="cmd">#14-11-2026</span>), tu n'as pas besoin de préciser le champ « date » : le bot utilise automatiquement la date du salon.</div>
+  <div class="tip"><strong>Astuce :</strong> toutes les commandes se lancent <strong>depuis le salon de la date concernée</strong> (par exemple <span class="cmd">#14-11-2026</span>). Le bot détecte automatiquement la date à partir du nom du salon — tu n'as rien à préciser.</div>
+
+  <h2>Voir les tables d'une date</h2>
+  <p>Il n'y a pas de commande pour afficher les tables : elles apparaissent automatiquement dans le <strong>message épinglé</strong> en haut de chaque salon de date. Ce message se met à jour tout seul dès qu'une table est ajoutée, modifiée ou supprimée (depuis Discord ou depuis le site).</p>
+  <p>Tu peux aussi consulter le planning complet depuis un navigateur via le site <a href="index.html">Organisation des parties</a> — le lien figure également en bas de chaque message épinglé.</p>
+  <div class="warn"><strong>Important :</strong> ne supprime pas le message épinglé, c'est lui qui affiche les tables en direct. Si tu le supprimes, il faudra attendre le prochain redémarrage du bot pour qu'il soit recréé.</div>
 
   <h2>Les commandes du bot Lanciers</h2>
 
-  <h3><span class="cmd">/lanciers-dates</span></h3>
-  <p>Affiche la liste des prochaines dates de parties disponibles. Ne demande aucune information.</p>
-
-  <h3><span class="cmd">/lanciers-tables</span></h3>
-  <p>Affiche les tables prévues pour une date : joueurs, jeu, décors.</p>
-  <table>
-    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr><td><code class="inline">date</code></td><td>Non</td><td>La date à afficher. Si tu es dans un salon de date, tu peux la laisser vide.</td></tr>
-    </tbody>
-  </table>
-  <p>Le premier message posté pour une date (celui épinglé en haut du salon) <strong>se met à jour tout seul</strong> dès qu'une table change. Si tu relances la commande alors qu'un message à jour existe déjà, tu obtiens un second aperçu, qui lui reste figé au moment où tu l'as demandé — c'est normal, il ne remplace pas l'original.</p>
-
   <h3><span class="cmd">/lanciers-add-table</span></h3>
-  <p>Ajoute une nouvelle table pour une date.</p>
+  <p>Ajoute une nouvelle table pour la date du salon.</p>
   <table>
     <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td><code class="inline">date</code></td><td>Non</td><td>La date concernée. Vide = date du salon.</td></tr>
       <tr><td><code class="inline">jeu</code></td><td>Non</td><td>Ex : 40k, AoS, Kill Team...</td></tr>
       <tr><td><code class="inline">decors</code></td><td>Non</td><td>Décors ou terrain utilisé</td></tr>
       <tr><td><code class="inline">joueur1</code> à <code class="inline">joueur4</code></td><td>Non</td><td>Noms des joueurs</td></tr>
@@ -119,20 +109,16 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
   </table>
 
   <h3><span class="cmd">/lanciers-commentaire</span></h3>
-  <p>Ajoute, affiche ou efface un commentaire général sur une date (par exemple pour annoncer un tournoi, un changement d'horaire, etc.). Le commentaire apparaît directement dans l'embed de la date.</p>
+  <p>Ajoute, affiche ou efface un commentaire général sur la date du salon (par exemple pour annoncer un tournoi, un changement d'horaire, etc.). Le commentaire apparaît directement dans le message épinglé.</p>
   <table>
     <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
     <tbody>
       <tr><td><code class="inline">texte</code></td><td>Non</td><td>Le commentaire à écrire. Laisse vide pour simplement afficher le commentaire actuel.</td></tr>
-      <tr><td><code class="inline">date</code></td><td>Non</td><td>La date concernée. Vide = date du salon.</td></tr>
       <tr><td><code class="inline">effacer</code></td><td>Non</td><td>Mets sur <code class="inline">True</code> pour supprimer le commentaire existant.</td></tr>
     </tbody>
   </table>
 
-  <h2>Où voir/gérer les tables autrement ?</h2>
-  <p>En plus du bot, le site <a href="index.html">Organisation des parties</a> permet de voir et gérer les tables depuis un navigateur. Le lien apparaît aussi automatiquement en bas de chaque embed de tables dans Discord.</p>
-
-  <h2>Comment ça marche derrière (pour comprendre l'affichage)</h2>
+  <h2>Comment ça marche derrière</h2>
   <ul>
     <li>Un salon est créé automatiquement pour chacun des 10 prochains samedis. Son nom est la date au format <code class="inline">JJ-MM-AAAA</code>.</li>
     <li>Le message épinglé en haut du salon est le seul à s'actualiser en direct. <strong>Ne le supprime pas.</strong></li>
