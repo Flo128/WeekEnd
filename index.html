@@ -143,6 +143,15 @@ async function loadDates(){
  const {data,error}=await supabaseClient.from("warhammer_dates").select("*").order("date_value",{ascending:true});
  if(error){showNotice("Erreur Supabase : "+error.message);return;}
  dates=data||[];
+
+ // Lit ?date=YYYY-MM-DD dans l'URL pour ouvrir directement la bonne journée.
+ // Ex : https://week-end-kohl.vercel.app/?date=2026-10-07
+ const urlDate = new URLSearchParams(location.search).get("date");
+ if (urlDate) {
+   const found = dates.find(d => d.date_value === urlDate);
+   if (found) currentDateId = found.id;
+ }
+
  if(!currentDateId && dates.length) currentDateId=dates[0].id;
  if(currentDateId && !dates.some(d=>d.id===currentDateId)) currentDateId=dates[0]?.id||null;
  renderDates(); await loadTables();
@@ -161,7 +170,16 @@ function renderDates(){
   const b=document.createElement("button");
   b.className="date-tab"+(d.id===currentDateId?" active":"");
   b.textContent=d.label;
-  b.onclick=async()=>{currentDateId=d.id;renderDates();await loadTables();};
+  b.onclick=async()=>{
+    currentDateId=d.id;
+    // Met à jour l'URL (?date=YYYY-MM-DD) pour que le lien reste partageable
+    // sans recharger la page ni polluer l'historique navigateur.
+    const url = new URL(location.href);
+    url.searchParams.set("date", d.date_value);
+    history.replaceState(null, "", url);
+    renderDates();
+    await loadTables();
+  };
   datesEl.appendChild(b);
  });
  updateNoteField();
