@@ -161,7 +161,7 @@ async function loadDates(){
  dates=data||[];
 
  // Lit ?date=YYYY-MM-DD dans l'URL pour ouvrir directement la bonne journée.
- // Ex : https://week-end-kohl.vercel.app/?date=2026-10-07
+ // Ex : https://lanciers.vercel.app/?date=2026-10-07
  const urlDate = new URLSearchParams(location.search).get("date");
  if (urlDate) {
    const found = dates.find(d => d.date_value === urlDate);
