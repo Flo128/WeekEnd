@@ -79,6 +79,17 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
   <p>Le lien présent dans chaque embed Discord pointe directement vers la bonne journée sur le site. Plus besoin de chercher l'onglet à la main : en cliquant sur <strong>Site Web - Organisation des parties</strong>, le planning s'ouvre déjà sur la date du salon concerné.</p>
   <p>Tu peux aussi copier l'adresse dans ton navigateur pour la partager : elle contient la date sous la forme <code class="inline">?date=AAAA-MM-JJ</code> (ex : <code class="inline">https://week-end-kohl.vercel.app/?date=2026-10-07</code>). Si tu changes d'onglet sur le site, l'URL se met à jour toute seule.</p>
 
+  <h2>⭐ Dates extra (réunion hors samedi)</h2>
+  <p>Si le club se réunit un autre jour qu'un samedi planifié, tu peux ajouter une <strong>date extra</strong> depuis le <a href="index.html">site</a> :</p>
+  <ol>
+    <li>Clique sur <strong>⭐ Ajouter une date extra</strong>.</li>
+    <li>Choisis la date (aujourd'hui ou plus tard) et, si tu veux, un commentaire (ex : « soirée Kill Team »).</li>
+    <li>Clique sur <strong>Créer la date</strong>.</li>
+  </ol>
+  <p>La date apparaît dans les onglets avec une ⭐, et le bot crée aussitôt son salon Discord <code class="inline">JJ-MM-AAAA-extra</code> avec son message épinglé. Tout fonctionne ensuite comme pour un samedi : tables, commentaire et commandes du bot.</p>
+  <p>Pour annuler une date extra à venir, ouvre son onglet sur le site et clique sur <strong>Annuler cette date extra</strong>.</p>
+  <div class="warn"><strong>Attention :</strong> annuler une date extra supprime ses tables et son salon Discord, avec tous ses messages.</div>
+
   <h2>Les commandes du bot Lanciers</h2>
 
   <h3><span class="cmd">/lanciers-add-table</span></h3>
@@ -125,6 +136,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
   <h2>Comment ça marche derrière</h2>
   <ul>
     <li>Un salon est créé automatiquement pour chacun des 10 prochains samedis. Son nom est la date au format <code class="inline">JJ-MM-AAAA</code>.</li>
+    <li>Chaque date extra ajoutée depuis le site a aussi son salon, nommé <code class="inline">JJ-MM-AAAA-extra</code>.</li>
     <li>Le message épinglé en haut du salon est le seul à s'actualiser en direct. <strong>Ne le supprime pas.</strong></li>
     <li>Une fois la date passée depuis une semaine, le salon est déplacé dans la catégorie <strong>Archives</strong> (les messages restent consultables).</li>
     <li>Un mois après la date, le salon est supprimé automatiquement — pense à noter ou faire une capture de ce que tu veux garder avant.</li>
