@@ -86,6 +86,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
     <li>Choisis la date (aujourd'hui ou plus tard) et, si tu veux, un commentaire (ex : « soirée Kill Team »).</li>
     <li>Clique sur <strong>Créer la date</strong>.</li>
   </ol>
+  <p>Tu peux aussi le faire depuis Discord avec <span class="cmd">/lanciers-date-extra</span> (voir plus bas).</p>
   <p>La date apparaît dans les onglets avec une ⭐, et le bot crée aussitôt son salon Discord <code class="inline">JJ-MM-AAAA-extra</code> avec son message épinglé. Tout fonctionne ensuite comme pour un samedi : tables, commentaire et commandes du bot.</p>
   <p>Pour annuler une date extra à venir, ouvre son onglet sur le site et clique sur <strong>Annuler cette date extra</strong>.</p>
   <div class="warn"><strong>Attention :</strong> annuler une date extra supprime ses tables et son salon Discord, avec tous ses messages.</div>
@@ -130,6 +131,16 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-size:12px}
     <tbody>
       <tr><td><code class="inline">texte</code></td><td>Non</td><td>Le commentaire à écrire. Laisse vide pour simplement afficher le commentaire actuel.</td></tr>
       <tr><td><code class="inline">effacer</code></td><td>Non</td><td>Mets sur <code class="inline">True</code> pour supprimer le commentaire existant.</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="cmd">/lanciers-date-extra</span></h3>
+  <p>Ajoute une date extra (réunion hors samedi planifié) et crée son salon <code class="inline">JJ-MM-AAAA-extra</code>. Cette commande peut être lancée depuis n'importe quel salon.</p>
+  <table>
+    <thead><tr><th>Champ</th><th>Obligatoire</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code class="inline">date</code></td><td class="req">Oui</td><td>La date au format <code class="inline">JJ/MM/AAAA</code> (ex : 15/10/2026). Aujourd'hui ou plus tard.</td></tr>
+      <tr><td><code class="inline">commentaire</code></td><td>Non</td><td>Texte affiché dans le message épinglé (ex : « soirée Kill Team »).</td></tr>
     </tbody>
   </table>
 
