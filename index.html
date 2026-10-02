@@ -26,14 +26,16 @@ header a.btn{text-decoration:none;white-space:nowrap}
 .empty{padding:40px;text-align:center;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}.loading{text-align:center;padding:40px;color:var(--muted)}
 .modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}.modal-wrap.open{display:flex}.modal{width:min(620px,100%);background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;box-shadow:0 20px 60px #0008}.modal h2{margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field.full{grid-column:1/-1}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;background:#11141a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .notice{margin-bottom:14px;padding:10px 12px;border:1px solid #60452f;background:#241b15;color:#e9b58f;border-radius:9px;font-size:13px;display:none}.notice.show{display:block}
+.date-tab.extra{border-style:dashed;color:var(--accent2)}.date-tab.extra.active{color:#fff}
+.toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
 .name-preview{padding:10px;background:#11141a;border:1px solid var(--line);border-radius:8px;font-weight:700;color:var(--accent2)}
-@media(max-width:650px){.app{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}header{align-items:flex-start;flex-wrap:wrap}.toolbar{align-items:stretch;flex-direction:column}.grid{grid-template-columns:1fr}.note-row{flex-direction:column;align-items:stretch;gap:4px}.note-status{text-align:left}}
+@media(max-width:650px){.toolbar-actions .btn{flex:1}.app{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}header{align-items:flex-start;flex-wrap:wrap}.toolbar{align-items:stretch;flex-direction:column}.grid{grid-template-columns:1fr}.note-row{flex-direction:column;align-items:stretch;gap:4px}.note-status{text-align:left}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-<div class="brand"><div class="logo"><img src="https://media.discordapp.net/attachments/1379385028919820359/1417888895210618921/f423369b-b7f6-438e-8fe4-307099f07ca0.png?ex=6ab341af&is=6ab1f02f&hm=725b5fb50f9f280900f010a527575d0f8bc8791de63fd2ff477aedf79e45783c&=&format=webp&quality=lossless" alt="Logo"></div><div><h1>Organisation des parties</h1><div class="subtitle">Planning Warhammer partagé — les 10 prochains samedis</div></div></div>
+<div class="brand"><div class="logo"><img src="https://media.discordapp.net/attachments/1379385028919820359/1417888895210618921/f423369b-b7f6-438e-8fe4-307099f07ca0.png?ex=6ab341af&is=6ab1f02f&hm=725b5fb50f9f280900f010a527575d0f8bc8791de63fd2ff477aedf79e45783c&=&format=webp&quality=lossless" alt="Logo"></div><div><h1>Organisation des parties</h1><div class="subtitle">Planning Warhammer partagé — les 10 prochains samedis + dates extra ⭐</div></div></div>
 <a class="btn" href="guide.html">📖 Guide d'utilisation bot discord</a>
 </header>
 <div id="notice" class="notice"></div>
@@ -45,7 +47,7 @@ header a.btn{text-decoration:none;white-space:nowrap}
 <span class="note-status" id="noteStatus"></span>
 </div>
 
-<div class="toolbar"><div class="summary" id="summary">Chargement…</div><button class="btn primary" id="addTableBtn">＋ Ajouter une table</button></div>
+<div class="toolbar"><div class="summary" id="summary">Chargement…</div><div class="toolbar-actions"><button class="btn danger" id="deleteExtraBtn" hidden>Annuler cette date extra</button><button class="btn" id="addExtraBtn">⭐ Ajouter une date extra</button><button class="btn primary" id="addTableBtn">＋ Ajouter une table</button></div></div>
 <div class="grid" id="tables"><div class="loading">Chargement des données…</div></div>
 </div>
 
@@ -58,6 +60,14 @@ header a.btn{text-decoration:none;white-space:nowrap}
 <div class="field"><label>Joueur 1</label><input id="p1"></div><div class="field"><label>Joueur 2</label><input id="p2"></div>
 <div class="field"><label>Joueur 3</label><input id="p3"></div><div class="field"><label>Joueur 4</label><input id="p4"></div>
 </div><div class="modal-actions"><button type="button" class="btn" id="cancelBtn">Annuler</button><button type="submit" class="btn primary">Enregistrer</button></div></form>
+</div></div>
+
+<div class="modal-wrap" id="extraModalWrap"><div class="modal">
+<h2>⭐ Ajouter une date extra</h2>
+<form id="extraForm"><div class="form-grid">
+<div class="field full"><label for="extraDate">Date de la réunion (hors samedi planifié)</label><input id="extraDate" type="date" required></div>
+<div class="field full"><label for="extraNote">Commentaire (optionnel)</label><input id="extraNote" type="text" maxlength="200" placeholder="ex : soirée Kill Team"></div>
+</div><div class="modal-actions"><button type="button" class="btn" id="extraCancelBtn">Annuler</button><button type="submit" class="btn primary">Créer la date</button></div></form>
 </div></div>
 
 <script>
@@ -98,15 +108,19 @@ function getNextSaturdays(count){
  return list;
 }
 
+// Garde les MAX_DATES prochains samedis. Les dates extra (is_extra) sont
+// gardées jusqu'à ce qu'elles soient passées. Même logique que
+// dateRotation.js côté bot.
 async function syncSaturdays(){
  if(!configured) return;
 
  const wanted = getNextSaturdays(MAX_DATES);
  const wantedSet = new Set(wanted.map(toISO));
+ const todayISO = toISO(new Date());
 
  const {data:existing, error} = await supabaseClient
   .from("warhammer_dates")
-  .select("id,date_value");
+  .select("id,date_value,is_extra");
 
  if(error){ showNotice("Erreur Supabase : " + error.message); return; }
 
@@ -117,7 +131,9 @@ async function syncSaturdays(){
   .filter(d=>!existingSet.has(toISO(d)))
   .map(d=>({ date_value: toISO(d), label: toLabel(d), note: "" }));
 
- const toDelete = rows.filter(r=>!wantedSet.has(r.date_value)).map(r=>r.id);
+ const toDelete = rows
+  .filter(r=>r.is_extra ? r.date_value<todayISO : !wantedSet.has(r.date_value))
+  .map(r=>r.id);
 
  if(toInsert.length){
   const {error:insErr} = await supabaseClient.from("warhammer_dates").insert(toInsert);
@@ -168,8 +184,9 @@ function renderDates(){
  datesEl.innerHTML="";
  dates.forEach(d=>{
   const b=document.createElement("button");
-  b.className="date-tab"+(d.id===currentDateId?" active":"");
-  b.textContent=d.label;
+  b.className="date-tab"+(d.id===currentDateId?" active":"")+(d.is_extra?" extra":"");
+  b.textContent=d.is_extra?`⭐ ${d.label}`:d.label;
+  if(d.is_extra) b.title="Date extra (hors samedi planifié)";
   b.onclick=async()=>{
     currentDateId=d.id;
     // Met à jour l'URL (?date=YYYY-MM-DD) pour que le lien reste partageable
@@ -183,6 +200,7 @@ function renderDates(){
   datesEl.appendChild(b);
  });
  updateNoteField();
+ document.getElementById("deleteExtraBtn").hidden=!dates.find(x=>x.id===currentDateId)?.is_extra;
 }
 
 function renderTables(){
@@ -272,6 +290,51 @@ document.getElementById("tableForm").addEventListener("submit",async e=>{
 });
 document.getElementById("addTableBtn").onclick=()=>{if(!currentDateId){showNotice("Aucune date disponible pour le moment.");return;}openModal();};
 document.getElementById("cancelBtn").onclick=closeModal;modalWrap.addEventListener("click",e=>{if(e.target===modalWrap)closeModal();});
+
+// ---------- Dates extra ----------
+// Une date extra est une réunion hors des samedis planifiés. Le bot Discord
+// crée son salon (JJ-MM-AAAA-extra) et l'embed dès qu'elle est ajoutée, puis
+// l'archive à J+7 et la supprime à J+30 comme un samedi.
+const extraModalWrap=document.getElementById("extraModalWrap"), extraDateInput=document.getElementById("extraDate");
+function closeExtraModal(){extraModalWrap.classList.remove("open");}
+document.getElementById("addExtraBtn").onclick=()=>{
+ if(!configured)return;
+ extraDateInput.min=toISO(new Date());
+ extraDateInput.value="";
+ document.getElementById("extraNote").value="";
+ extraModalWrap.classList.add("open");setTimeout(()=>extraDateInput.focus(),50);
+};
+document.getElementById("extraCancelBtn").onclick=closeExtraModal;
+extraModalWrap.addEventListener("click",e=>{if(e.target===extraModalWrap)closeExtraModal();});
+
+document.getElementById("extraForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const iso=extraDateInput.value;
+ if(!iso)return;
+ if(iso<toISO(new Date())){alert("La date doit être aujourd'hui ou plus tard.");return;}
+ const existing=dates.find(d=>d.date_value===iso);
+ if(existing){alert(`Le ${existing.label} existe déjà dans le planning.`);return;}
+ const [y,m,d]=iso.split("-");
+ const {data,error}=await supabaseClient.from("warhammer_dates")
+  .insert({date_value:iso,label:`${d}/${m}/${y}`,note:document.getElementById("extraNote").value.trim(),is_extra:true})
+  .select().single();
+ if(error){showNotice("Création de la date extra impossible : "+error.message);return;}
+ closeExtraModal();
+ currentDateId=data.id;
+ const url=new URL(location.href);url.searchParams.set("date",iso);history.replaceState(null,"",url);
+ await loadDates();
+});
+
+document.getElementById("deleteExtraBtn").onclick=async()=>{
+ const d=dates.find(x=>x.id===currentDateId);
+ if(!d?.is_extra)return;
+ if(!confirm(`Annuler la date extra du ${d.label} ?\nSes tables seront supprimées, ainsi que son salon Discord.`))return;
+ const {error}=await supabaseClient.from("warhammer_dates").delete().eq("id",d.id);
+ if(error){showNotice("Suppression impossible : "+error.message);return;}
+ currentDateId=null;
+ const url=new URL(location.href);url.searchParams.delete("date");history.replaceState(null,"",url);
+ await loadDates();
+};
 
 // Resynchronisation périodique
 setInterval(async ()=>{ if(!configured) return; await loadDates(); }, SYNC_INTERVAL_MS);
