@@ -78,7 +78,11 @@ const SUPABASE_URL = "https://syuaapflawgugaroyifl.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_dotnNWbuJlVYrwF7MwZTpQ_f8Jy7aq7";
 
 const configured = !SUPABASE_URL.includes("TON_URL") && !SUPABASE_ANON_KEY.includes("TA_CLE");
-const supabaseClient = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// cache: "no-store" : jamais de réponse mise en cache par le navigateur, sinon
+// la synchro des samedis pourrait travailler sur une liste de dates périmée.
+const supabaseClient = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+ global: { fetch: (url, opts) => fetch(url, { ...opts, cache: "no-store" }) }
+}) : null;
 
 let dates=[], currentDateId=null, editId=null, currentTables=[], computedTableName="";
 const MAX_DATES = 10;
@@ -136,7 +140,9 @@ async function syncSaturdays(){
   .map(r=>r.id);
 
  if(toInsert.length){
-  const {error:insErr} = await supabaseClient.from("warhammer_dates").insert(toInsert);
+  // Une seule ligne par date (contrainte unique en base) : si le bot ou un autre
+  // visiteur vient d'ajouter le même samedi, on l'ignore au lieu d'échouer.
+  const {error:insErr} = await supabaseClient.from("warhammer_dates").upsert(toInsert, { onConflict: "date_value", ignoreDuplicates: true });
   if(insErr){ showNotice("Création des samedis impossible : " + insErr.message); return; }
  }
 
