@@ -1,0 +1,149 @@
+<title>Stratagèmes Votann FLO</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: compteurs CP/YP collants en haut, onglets de phase, cartes de stratagèmes en une colonne */
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --fg:#1b2026; --muted:#5d6670; --line:#d3d8de;
+  --accent:#b8650f; --accent-soft:#f6e6d2; --ok:#2f7a4a; --off:#9aa2ab;
+  --display:"Saira Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14171b; --panel:#1d2127; --fg:#e8ebee; --muted:#9aa3ad; --line:#2d333b;
+  --accent:#f0953a; --accent-soft:#3a2a1a; --ok:#5fbf84; --off:#5d656e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14171b; --panel:#1d2127; --fg:#e8ebee; --muted:#9aa3ad; --line:#2d333b;
+  --accent:#f0953a; --accent-soft:#3a2a1a; --ok:#5fbf84; --off:#5d656e; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:680px;margin:0 auto;padding-inline:16px;padding-block:12px 40px}
+h1{font-family:var(--display);font-size:1.6rem;letter-spacing:.02em;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:.85rem;margin:2px 0 12px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;background:var(--bg);padding-block:8px;display:grid;gap:8px}
+.counters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ctr{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;display:flex;align-items:center;gap:8px}
+.ctr .lbl{font-family:var(--display);font-size:.95rem;letter-spacing:.08em;color:var(--muted);min-width:2.2em}
+.ctr .val{font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums;min-width:1.6em;text-align:center}
+.ctr button{font:inherit;font-size:1.2rem;width:36px;height:36px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.ctr button:focus-visible,.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mode{font-size:.82rem;padding:6px 10px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
+.mode b{color:var(--accent)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:0 0 auto;font-family:var(--display);font-size:1rem;letter-spacing:.04em;padding:6px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.list{display:grid;gap:10px;margin-top:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:4px}
+.card.off{opacity:.45}
+.top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.name{font-family:var(--display);font-size:1.2rem;letter-spacing:.03em;flex:1;min-width:0}
+.cp{font-family:var(--display);font-size:1rem;background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:4px}
+.det{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.when{font-size:.85rem;color:var(--muted)}
+.fx{margin:0}
+.who{font-size:.85rem}
+.who b{color:var(--ok)}
+.req{font-size:.8rem;color:var(--accent);font-weight:600}
+.use{justify-self:start;font:inherit;font-size:.85rem;padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;margin-top:4px}
+.use:disabled{border-color:var(--off);color:var(--off);cursor:default}
+.empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
+@media (prefers-reduced-motion:no-preference){.card{transition:opacity .15s}}
+</style>
+
+<div class="wrap">
+  <h1>Stratagèmes Votann FLO</h1>
+  <p class="sub">Needgaârd Oathband + Hearthguard Covenant · 2000 pts</p>
+
+  <div class="bar">
+    <div class="counters">
+      <div class="ctr"><span class="lbl">CP</span><button id="cpm" aria-label="Retirer un CP">−</button><span class="val" id="cp">0</span><button id="cpp" aria-label="Ajouter un CP">+</button></div>
+      <div class="ctr"><span class="lbl">YP</span><button id="ypm" aria-label="Retirer un YP">−</button><span class="val" id="yp">0</span><button id="ypp" aria-label="Ajouter un YP">+</button></div>
+    </div>
+    <div class="mode" id="mode"></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+const PHASES=[
+  {id:"cmd",label:"Commandement"},
+  {id:"mvt",label:"Mouvement"},
+  {id:"tir",label:"Tir"},
+  {id:"cbt",label:"Combat"},
+  {id:"atir",label:"Tir adverse"},
+  {id:"acbt",label:"Combat adverse"}
+];
+const S=[
+  {n:"Ordered Retreat",cp:1,d:"Oathband",p:["mvt"],w:"Après qu'une unité a fait Fall Back.",fx:"L'unité peut tirer et charger ce tour.",who:"Hearthguard, Steeljacks, Hekaton bloqués au contact"},
+  {n:"Materialisation Matrices",cp:1,d:"Covenant",p:["mvt"],w:"Einhyr Hearthguard avec Deep Strike choisis pour arriver.",fx:"Arrivée à plus de 6\" de l'ennemi, même dans sa zone. Pas de charge ce tour.",who:"Einhyr Hearthguard + Champion"},
+  {n:"Fury of the Hearth",cp:1,d:"Covenant",p:["tir"],w:"Einhyr Hearthguard choisis pour tirer.",fx:"+1 Force au tir (plasma F8 : 2+ contre E4). Dépense 1 YP : Sustained Hits 1 en plus.",who:"Einhyr Hearthguard",yp:1},
+  {n:"Ancestral Sentence",cp:1,d:"Oathband",p:["tir"],w:"Une unité qui n'a pas encore tiré.",fx:"Armes de tir : Sustained Hits 1. Dépense 3 YP : Sustained Hits 2.",who:"Steeljacks (36 tirs), Thunderkyn, Hekaton (beamer)",yp:3},
+  {n:"Huntr's Mark",cp:1,d:"Oathband",p:["tir"],w:"Une unité qui n'a pas encore tiré.",fx:"Relance les 1 pour toucher et pour blesser.",who:"Steeljacks, Thunderkyn, Pioneers. Inutile pour les Hearthguard à 9\""},
+  {n:"Honour of the Hold",cp:1,d:"Oathband",p:["cbt","acbt"],w:"Une unité qui n'a pas encore combattu.",fx:"Contre un ennemi au contact : PA +1. Dépense 3 YP : PA +2.",who:"Beserks, Champion, Kâhl, Hearthguard",yp:3},
+  {n:"Void Hardened",cp:1,d:"Oathband",p:["atir","acbt"],w:"Après qu'une unité ennemie a choisi ses cibles.",fx:"PA des attaques contre ton unité réduite de 1.",who:"Hekaton, Hearthguard",fort:true},
+  {n:"Brëkkeknots",cp:1,d:"Covenant",p:["atir","acbt"],w:"Une unité ennemie cible des Einhyr Hearthguard.",fx:"Invulnérable 4+.",who:"Einhyr Hearthguard"},
+  {n:"Reactive Reprisal",cp:2,d:"Oathband",p:["atir"],w:"Après qu'une unité ennemie a tiré sur ton unité.",fx:"Ton unité tire sur elle comme en phase de tir.",who:"Hekaton, Steeljacks",fort:true}
+];
+const CMD=[
+  "Gagne 1 CP.",
+  "Fin de phase, YP : +1 objectif dans ta zone. Dès le round 2 : +1 objectif hors zone, +1 si 2 hors zone ou plus, +1 si tu tiens plus d'objectifs.",
+  "Puis vérifie le mode : 7 YP ou plus = Fortify Takeover, sinon Hostile Acquisition.",
+  "Martial Leverage : +1 YP à chaque unité ennemie détruite, à tout moment."
+];
+
+let st={cp:0,yp:0,tab:"cmd"};
+try{Object.assign(st,JSON.parse(localStorage.getItem("votannflo")||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem("votannflo",JSON.stringify(st))}catch(e){}};
+const $=id=>document.getElementById(id);
+
+function render(){
+  $("cp").textContent=st.cp; $("yp").textContent=st.yp;
+  const fort=st.yp>=7;
+  $("mode").innerHTML=fort
+    ?"Mode : <b>Fortify Takeover</b> · +1 touche sur objectif, −1 blessure si F &gt; E"
+    :"Mode : <b>Hostile Acquisition</b> · +1 touche contre cible sur objectif, relance Advance et charge";
+  const tabs=$("tabs"); tabs.innerHTML="";
+  PHASES.forEach(ph=>{
+    const b=document.createElement("button");
+    b.textContent=ph.label; b.setAttribute("role","tab");
+    b.setAttribute("aria-selected",ph.id===st.tab);
+    b.onclick=()=>{st.tab=ph.id;save();render()};
+    tabs.appendChild(b);
+  });
+  const list=$("list"); list.innerHTML="";
+  if(st.tab==="cmd"){
+    CMD.forEach(t=>{const c=document.createElement("div");c.className="card";c.innerHTML=`<p class="fx">${t}</p>`;list.appendChild(c)});
+    return;
+  }
+  const items=S.filter(s=>s.p.includes(st.tab));
+  if(!items.length){list.innerHTML='<p class="empty">Aucun stratagème de détachement dans cette phase.</p>';return}
+  items.forEach(s=>{
+    const blocked=s.fort&&!fort;
+    const c=document.createElement("div");
+    c.className="card"+(blocked?" off":"");
+    c.innerHTML=`<div class="top"><span class="name">${s.n}</span><span class="cp">${s.cp} CP</span></div>
+      <span class="det">${s.d}</span>
+      <span class="when">${s.w}</span>
+      <p class="fx">${s.fx}</p>
+      <span class="who">Pour : <b>${s.who}</b></span>
+      ${s.fort?`<span class="req">${blocked?"Indisponible : il faut 7 YP ou plus":"Fortify Takeover actif : disponible"}</span>`:""}`;
+    const row=document.createElement("div");row.style.cssText="display:flex;gap:8px;flex-wrap:wrap";
+    const u=document.createElement("button");u.className="use";u.textContent=`Utiliser (−${s.cp} CP)`;
+    u.disabled=blocked||st.cp<s.cp;
+    u.onclick=()=>{st.cp-=s.cp;save();render()};
+    row.appendChild(u);
+    if(s.yp){
+      const y=document.createElement("button");y.className="use";y.textContent=`Option (−${s.yp} YP)`;
+      y.disabled=st.yp<s.yp;
+      y.onclick=()=>{st.yp-=s.yp;save();render()};
+      row.appendChild(y);
+    }
+    c.appendChild(row);
+    list.appendChild(c);
+  });
+}
+const step=(k,d)=>{st[k]=Math.max(0,st[k]+d);save();render()};
+$("cpm").onclick=()=>step("cp",-1);$("cpp").onclick=()=>step("cp",1);
+$("ypm").onclick=()=>step("yp",-1);$("ypp").onclick=()=>step("yp",1);
+render();
+</script>
