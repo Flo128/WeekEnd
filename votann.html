@@ -1,56 +1,61 @@
 <title>Stratagèmes Votann FLO</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;600&display=swap">
 <style>
-/* Layout: compteurs CP/YP collants en haut, onglets de phase, cartes de stratagèmes en une colonne */
+/* Layout: compteurs CP/YP collants, onglets de phase, cartes en une colonne (stratagème / règle / synergie) */
 :root{
   --bg:#eef0f2; --panel:#ffffff; --fg:#1b2026; --muted:#5d6670; --line:#d3d8de;
-  --accent:#b8650f; --accent-soft:#f6e6d2; --ok:#2f7a4a; --off:#9aa2ab;
+  --accent:#b8650f; --accent-soft:#f6e6d2; --steel:#2c6a8a; --steel-soft:#dcebf3; --ok:#2f7a4a; --off:#9aa2ab;
   --display:"Saira Condensed","Arial Narrow",sans-serif;
   --body:"IBM Plex Sans",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#14171b; --panel:#1d2127; --fg:#e8ebee; --muted:#9aa3ad; --line:#2d333b;
-  --accent:#f0953a; --accent-soft:#3a2a1a; --ok:#5fbf84; --off:#5d656e; color-scheme:dark}}
+  --accent:#f0953a; --accent-soft:#3a2a1a; --steel:#7fbfe0; --steel-soft:#1b2d38; --ok:#5fbf84; --off:#5d656e; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#14171b; --panel:#1d2127; --fg:#e8ebee; --muted:#9aa3ad; --line:#2d333b;
-  --accent:#f0953a; --accent-soft:#3a2a1a; --ok:#5fbf84; --off:#5d656e; color-scheme:dark}
+  --accent:#f0953a; --accent-soft:#3a2a1a; --steel:#7fbfe0; --steel-soft:#1b2d38; --ok:#5fbf84; --off:#5d656e; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
 .wrap{max-width:680px;margin:0 auto;padding-inline:16px;padding-block:12px 40px}
 h1{font-family:var(--display);font-size:1.6rem;letter-spacing:.02em;margin:0;text-wrap:balance}
-.sub{color:var(--muted);font-size:.85rem;margin:2px 0 12px}
+.sub{color:var(--muted);font-size:.85rem;margin:2px 0 8px}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;background:var(--bg);padding-block:8px;display:grid;gap:8px}
 .counters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ctr{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;display:flex;align-items:center;gap:8px}
 .ctr .lbl{font-family:var(--display);font-size:.95rem;letter-spacing:.08em;color:var(--muted);min-width:2.2em}
 .ctr .val{font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums;min-width:1.6em;text-align:center}
 .ctr button{font:inherit;font-size:1.2rem;width:36px;height:36px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
-.ctr button:focus-visible,.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .mode{font-size:.82rem;padding:6px 10px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
 .mode b{color:var(--accent)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 .tabs button{flex:0 0 auto;font-family:var(--display);font-size:1rem;letter-spacing:.04em;padding:6px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 .list{display:grid;gap:10px;margin-top:10px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:4px}
+.group{font-family:var(--display);font-size:.95rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 2px -4px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:4px;min-width:0}
 .card.off{opacity:.45}
+.card.rule{border-style:dashed;border-color:var(--accent)}
+.card.syn{border-left:3px solid var(--steel)}
 .top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .name{font-family:var(--display);font-size:1.2rem;letter-spacing:.03em;flex:1;min-width:0}
-.cp{font-family:var(--display);font-size:1rem;background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:4px}
+.pill{font-family:var(--display);font-size:1rem;padding:1px 8px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
+.syn .pill{background:var(--steel-soft);color:var(--steel)}
 .det{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .when{font-size:.85rem;color:var(--muted)}
 .fx{margin:0}
 .who{font-size:.85rem}
 .who b{color:var(--ok)}
 .req{font-size:.8rem;color:var(--accent);font-weight:600}
-.use{justify-self:start;font:inherit;font-size:.85rem;padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;margin-top:4px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.use{font:inherit;font-size:.85rem;padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer}
 .use:disabled{border-color:var(--off);color:var(--off);cursor:default}
-.empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
+.foot{color:var(--muted);font-size:.78rem;margin-top:18px}
 @media (prefers-reduced-motion:no-preference){.card{transition:opacity .15s}}
 </style>
 
 <div class="wrap">
   <h1>Stratagèmes Votann FLO</h1>
-  <p class="sub">Needgaârd Oathband + Hearthguard Covenant · 2000 pts</p>
+  <p class="sub">Brandfast Oathband + Hearthguard Covenant · 2000 pts</p>
 
   <div class="bar">
     <div class="counters">
@@ -62,84 +67,160 @@ h1{font-family:var(--display);font-size:1.6rem;letter-spacing:.02em;margin:0;tex
   </div>
 
   <div class="list" id="list"></div>
+  <p class="foot">Règles 11e édition résumées depuis Wahapedia. Vengeance Flare : vérifie le texte exact du choix Sagitaur / Hekaton.</p>
 </div>
 
 <script>
 const PHASES=[
+  {id:"dep",label:"Déploiement"},
   {id:"cmd",label:"Commandement"},
   {id:"mvt",label:"Mouvement"},
   {id:"tir",label:"Tir"},
+  {id:"chg",label:"Charge"},
   {id:"cbt",label:"Combat"},
-  {id:"atir",label:"Tir adverse"},
-  {id:"acbt",label:"Combat adverse"}
+  {id:"amv",label:"Adv. mouvement"},
+  {id:"atir",label:"Adv. tir"},
+  {id:"acbt",label:"Adv. combat"},
+  {id:"syn",label:"Synergies"}
 ];
-const S=[
-  {n:"Ordered Retreat",cp:1,d:"Oathband",p:["mvt"],w:"Après qu'une unité a fait Fall Back.",fx:"L'unité peut tirer et charger ce tour.",who:"Hearthguard, Steeljacks, Hekaton bloqués au contact"},
-  {n:"Materialisation Matrices",cp:1,d:"Covenant",p:["mvt"],w:"Einhyr Hearthguard avec Deep Strike choisis pour arriver.",fx:"Arrivée à plus de 6\" de l'ennemi, même dans sa zone. Pas de charge ce tour.",who:"Einhyr Hearthguard + Champion"},
-  {n:"Fury of the Hearth",cp:1,d:"Covenant",p:["tir"],w:"Einhyr Hearthguard choisis pour tirer.",fx:"+1 Force au tir (plasma F8 : 2+ contre E4). Dépense 1 YP : Sustained Hits 1 en plus.",who:"Einhyr Hearthguard",yp:1},
-  {n:"Ancestral Sentence",cp:1,d:"Oathband",p:["tir"],w:"Une unité qui n'a pas encore tiré.",fx:"Armes de tir : Sustained Hits 1. Dépense 3 YP : Sustained Hits 2.",who:"Steeljacks (36 tirs), Thunderkyn, Hekaton (beamer)",yp:3},
-  {n:"Huntr's Mark",cp:1,d:"Oathband",p:["tir"],w:"Une unité qui n'a pas encore tiré.",fx:"Relance les 1 pour toucher et pour blesser.",who:"Steeljacks, Thunderkyn, Pioneers. Inutile pour les Hearthguard à 9\""},
-  {n:"Honour of the Hold",cp:1,d:"Oathband",p:["cbt","acbt"],w:"Une unité qui n'a pas encore combattu.",fx:"Contre un ennemi au contact : PA +1. Dépense 3 YP : PA +2.",who:"Beserks, Champion, Kâhl, Hearthguard",yp:3},
-  {n:"Void Hardened",cp:1,d:"Oathband",p:["atir","acbt"],w:"Après qu'une unité ennemie a choisi ses cibles.",fx:"PA des attaques contre ton unité réduite de 1.",who:"Hekaton, Hearthguard",fort:true},
-  {n:"Brëkkeknots",cp:1,d:"Covenant",p:["atir","acbt"],w:"Une unité ennemie cible des Einhyr Hearthguard.",fx:"Invulnérable 4+.",who:"Einhyr Hearthguard"},
-  {n:"Reactive Reprisal",cp:2,d:"Oathband",p:["atir"],w:"Après qu'une unité ennemie a tiré sur ton unité.",fx:"Ton unité tire sur elle comme en phase de tir.",who:"Hekaton, Steeljacks",fort:true}
-];
-const CMD=[
-  "Gagne 1 CP.",
-  "Fin de phase, YP : +1 objectif dans ta zone. Dès le round 2 : +1 objectif hors zone, +1 si 2 hors zone ou plus, +1 si tu tiens plus d'objectifs.",
-  "Puis vérifie le mode : 7 YP ou plus = Fortify Takeover, sinon Hostile Acquisition.",
-  "Martial Leverage : +1 YP à chaque unité ennemie détruite, à tout moment."
+
+/* t: strat | rule | syn */
+const C=[
+  /* ---------- Déploiement ---------- */
+  {t:"syn",p:["dep"],n:"Embarquements conseillés",tag:"Transports",
+   fx:"Hekaton 1 : Steeljacks + Memnyr (13/14). Hekaton 2 : Thunderkyn (12/14). Sagitaur 1 : 5 Hearthkyn + Kâhl. Sagitaur 2 : 5 Hearthkyn. Sagitaur 3 : 5 Beserks.",
+   who:"Hearthguard + Champion (22 places) et le 2e groupe de Beserks restent à pied, au contact d'un transport"},
+  {t:"syn",p:["dep"],n:"Diviser les Hearthkyn",tag:"Sagitaur",
+   fx:"Au Declare Battle Formations, coupe les 10 Hearthkyn en 2 × 5 : une moitié doit commencer dans ce Sagitaur. Une autre moitié dans un 2e Sagitaur.",
+   who:"Hearthkyn Warriors"},
+  {t:"syn",p:["dep"],n:"Kâhl avec des Hearthkyn",tag:"Personnage",
+   fx:"Le Kâhl peut mener Hearthkyn ou Hearthguard. Le Champion mène déjà les Hearthguard : mets le Kâhl sur une moitié de Hearthkyn (Lethal Hits + Sustained Hits de l'aura).",
+   who:"Kâhl"},
+  {t:"syn",p:["dep"],n:"Scouts 9\"",tag:"Pioneers",fx:"Les deux unités de Pioneers se placent en avance pour prendre un objectif ou bloquer."},
+
+  /* ---------- Commandement ---------- */
+  {t:"rule",p:["cmd"],n:"Gain de YP",tag:"Règle d'armée",
+   fx:"+1 objectif dans ta zone. Dès le round 2 : +1 objectif hors zone, +1 si 2 hors zone ou plus, +1 si tu tiens plus d'objectifs. Puis mode : 7 YP ou plus = Fortify Takeover, sinon Hostile Acquisition."},
+  {t:"syn",p:["cmd","syn"],n:"Computational Mastermind",tag:"Memnyr Strategist",
+   fx:"Fin de ton Commandement, avant le choix du mode : pour chaque objectif que tu contrôles avec lui à portée, gagne ou dépense 1 YP. Sert à rester juste sous 7 YP (Hostile) ou à passer 7 YP (Fortify).",
+   who:"Garde les Steeljacks sur un objectif"},
+  {t:"syn",p:["cmd","syn"],n:"Luck Has. Need Keeps. Toil Earns.",tag:"Hearthkyn Warriors",
+   fx:"Fin de ton Commandement sur un objectif contrôlé : il reste à toi même après leur départ, tant que l'adversaire ne le reprend pas.",
+   who:"Débarque, sécurise, rembarque ou repars"},
+
+  /* ---------- Mouvement ---------- */
+  {t:"rule",p:["mvt","tir"],n:"Mobile Sensor Relays",tag:"Brandfast · toujours active",
+   fx:"Ton infanterie entièrement à 6\" ou moins d'un transport gagne Sustained Hits 1 au tir. Finis tes mouvements dans la bulle des Hekaton et Sagitaur."},
+  {t:"strat",p:["mvt"],n:"Bastion Running",cp:1,tag:"Brandfast",
+   w:"Ton Mouvement, Hekaton pas encore bougé.",fx:"Ce Hekaton traverse les décors pendant son mouvement normal ou d'Advance.",who:"Hekaton Land Fortress"},
+  {t:"strat",p:["mvt","tir","cmd"],n:"Secure Positions",cp:1,tag:"Brandfast",
+   w:"À la fin de n'importe laquelle de tes phases.",fx:"Une unité embarquée débarque entièrement à 6\" du transport. Pas de charge ce tour.",
+   who:"Steeljacks hors du Hekaton juste avant le tir, Hearthkyn sur un objectif"},
+  {t:"syn",p:["mvt","syn"],n:"Blistering Advance",tag:"Sagitaur",
+   fx:"Après un Advance, les unités embarquées peuvent débarquer à 3\" ou moins du Sagitaur.",
+   who:"Beserks et Hearthkyn livrés loin et vite"},
+  {t:"syn",p:["mvt","chg","syn"],n:"Exemplar of the Einhyr",tag:"Einhyr Champion",
+   fx:"Unité menée : +1 aux jets d'Advance et de charge.",who:"Hearthguard à pied : compense leurs 5\""},
+
+  /* ---------- Tir ---------- */
+  {t:"rule",p:["tir"],n:"Avatars of the Ancestors",tag:"Covenant · toujours active",
+   fx:"Kâhl, Champion et Hearthguard relancent les 1 pour blesser au tir contre une cible à 9\" ou moins."},
+  {t:"syn",p:["tir"],n:"Ordre de tir conseillé",tag:"Séquence",
+   fx:"1. Hekaton (MultiCOG ignore les malus) sur la cible prioritaire. 2. Illuminated Priority sur cette cible. 3. Steeljacks et Thunderkyn dans l'aura. 4. Hearthguard avec Fury."},
+  {t:"strat",p:["tir"],n:"Fury of the Hearth",cp:1,tag:"Covenant",yp:1,
+   w:"Des Einhyr Hearthguard choisis pour tirer.",fx:"+1 Force au tir (plasma F8 : 2+ contre E4). 1 YP : Sustained Hits 1, inutile si déjà dans l'aura.",
+   who:"Einhyr Hearthguard"},
+  {t:"strat",p:["tir"],n:"Illuminated Priority",cp:1,tag:"Brandfast",
+   w:"Juste après le tir d'un de tes véhicules.",fx:"Choisis un ennemi touché : toute ton infanterie relance les 1 pour toucher contre lui ce tour.",
+   who:"Steeljacks et Thunderkyn (les autres relancent déjà les 1)"},
+  {t:"strat",p:["tir"],n:"Inexorable Efficiency",cp:1,tag:"Brandfast",
+   w:"Ton Tir.",fx:"Une unité qui a fait Fall Back peut tirer.",who:"Steeljacks ou Hearthguard sortis d'un corps à corps"},
+  {t:"syn",p:["tir","syn"],n:"Kindred Hero",tag:"Kâhl",
+   fx:"Unité menée : Lethal Hits. Avec l'aura, les 6 pour toucher font à la fois une touche bonus et une blessure auto.",who:"Hearthkyn (rail rifle, HYLas)"},
+  {t:"syn",p:["tir","syn"],n:"MultiCOG Targeting",tag:"Hekaton",
+   fx:"Ignore tous les modificateurs de CT et de touche : ni malus de dégât, ni couvert, ni mouvement."},
+  {t:"syn",p:["tir","syn"],n:"Decisive Destruction",tag:"Einhyr Hearthguard",
+   fx:"Relance des 1 pour toucher contre la cible éligible la plus proche. Avec Avatars : relance des 1 à la touche et à la blessure à 9\"."},
+
+  /* ---------- Charge ---------- */
+  {t:"syn",p:["chg","syn"],n:"Mass Driver Accelerators",tag:"Einhyr Champion",
+   fx:"Après sa charge : un ennemi au contact subit D3 mortelles sur 2-5, D3+3 sur 6."},
+
+  /* ---------- Combat ---------- */
+  {t:"syn",p:["cbt","syn"],n:"Seized Opportunity",tag:"Kâhl",
+   fx:"Une fois par phase, quand son unité détruit une unité : +1 YP."},
+  {t:"rule",p:["cbt"],n:"Pas de stratagème de détachement",tag:"Rappel",
+   fx:"Brandfast n'a rien au corps à corps : les Beserks frappent avec leur profil seul. Utilise les stratagèmes de base."},
+
+  /* ---------- Adversaire : mouvement / charge ---------- */
+  {t:"syn",p:["amv","syn"],n:"Overwatch des Steeljacks",tag:"Memnyr + Steeljacks",
+   fx:"Purge Response : en Fire Overwatch, les Steeljacks touchent sur 5+ (4+ en Fortify Takeover). Predictive Guidance du Memnyr : -1 CP sur ce stratagème, une fois par round. 36 tirs Devastating Wounds.",
+   who:"Ironkin Steeljacks + Memnyr Strategist"},
+
+  /* ---------- Adversaire : tir ---------- */
+  {t:"strat",p:["atir","acbt"],n:"Brëkkeknots",cp:1,tag:"Covenant",
+   w:"Un ennemi cible tes Einhyr Hearthguard.",fx:"Invulnérable 4+ (au lieu de 5+ avec la Weavefield Crest).",who:"Einhyr Hearthguard + Champion"},
+  {t:"strat",p:["atir"],n:"Vengeance Flare",cp:2,tag:"Brandfast",yp:2,
+   w:"Juste après qu'un ennemi a tiré sur ton infanterie.",fx:"Un Sagitaur à 6\" de l'unité touchée riposte sur le tireur. Avec 2 YP, un Hekaton à 6\" peut riposter à la place.",
+   who:"Hekaton (beamer) ou Sagitaur (beam cannon) près de l'infanterie"},
+  {t:"strat",p:["atir"],n:"Opportunistic Escalation",cp:1,tag:"Brandfast",need:"hostile",
+   w:"Juste après un tir ennemi, si tu es en Hostile Acquisition.",fx:"Un véhicule touché (pas un Hekaton) fait un mouvement normal de D6\".",
+   who:"Sagitaur : se mettre à couvert ou rapprocher son aura"},
+
+  /* ---------- Synergies uniquement ---------- */
+  {t:"syn",p:["syn"],n:"Weavefield Crest, pas Teleport",tag:"Hearthguard",
+   fx:"Ta liste donne 5++ aux Hearthguard mais pas Deep Strike : Materialisation Matrices ne sert pas. Pour la frappe en profondeur, change la crest du Hesyr."},
+  {t:"syn",p:["syn"],n:"Panspectral Scanner",tag:"Hekaton · Pioneers",
+   fx:"Relance des 1 pour toucher au tir. Les Pioneers ignorent aussi les malus grâce au Rollbar Searchlight."},
+  {t:"syn",p:["syn"],n:"Enhancement à envisager",tag:"Brandfast",
+   fx:"Trivärg Cyber Implant (40 pts) sur le Memnyr : Sustained Hits 2 si l'unité a débarqué ce tour, ou pour 2 YP. Avec Secure Positions, 36 tirs Devastating Wounds en Sustained 2."}
 ];
 
 let st={cp:0,yp:0,tab:"cmd"};
 try{Object.assign(st,JSON.parse(localStorage.getItem("votannflo")||"{}"))}catch(e){}
+if(!PHASES.some(p=>p.id===st.tab))st.tab="cmd";
 const save=()=>{try{localStorage.setItem("votannflo",JSON.stringify(st))}catch(e){}};
 const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function card(s,fort){
+  const blocked=s.need==="hostile"&&fort;
+  const c=document.createElement("div");
+  c.className="card"+(s.t==="rule"?" rule":s.t==="syn"?" syn":"")+(blocked?" off":"");
+  const pill=s.t==="strat"?`${s.cp} CP`:s.t==="rule"?"Règle":"Synergie";
+  c.innerHTML=`<div class="top"><span class="name">${esc(s.n)}</span><span class="pill">${pill}</span></div>
+    <span class="det">${esc(s.tag)}</span>
+    ${s.w?`<span class="when">${esc(s.w)}</span>`:""}
+    <p class="fx">${esc(s.fx)}</p>
+    ${s.who?`<span class="who">Pour : <b>${esc(s.who)}</b></span>`:""}
+    ${s.need==="hostile"?`<span class="req">${blocked?"Indisponible : il faut Hostile Acquisition (moins de 7 YP)":"Hostile Acquisition active : disponible"}</span>`:""}`;
+  if(s.t==="strat"){
+    const row=document.createElement("div");row.className="row";
+    const u=document.createElement("button");u.className="use";u.textContent=`Utiliser (−${s.cp} CP)`;
+    u.disabled=blocked||st.cp<s.cp;u.onclick=()=>{st.cp-=s.cp;save();render()};row.appendChild(u);
+    if(s.yp){const y=document.createElement("button");y.className="use";y.textContent=`Option (−${s.yp} YP)`;
+      y.disabled=st.yp<s.yp;y.onclick=()=>{st.yp-=s.yp;save();render()};row.appendChild(y);}
+    c.appendChild(row);
+  }
+  return c;
+}
 
 function render(){
-  $("cp").textContent=st.cp; $("yp").textContent=st.yp;
+  $("cp").textContent=st.cp;$("yp").textContent=st.yp;
   const fort=st.yp>=7;
   $("mode").innerHTML=fort
     ?"Mode : <b>Fortify Takeover</b> · +1 touche sur objectif, −1 blessure si F &gt; E"
     :"Mode : <b>Hostile Acquisition</b> · +1 touche contre cible sur objectif, relance Advance et charge";
-  const tabs=$("tabs"); tabs.innerHTML="";
-  PHASES.forEach(ph=>{
-    const b=document.createElement("button");
-    b.textContent=ph.label; b.setAttribute("role","tab");
-    b.setAttribute("aria-selected",ph.id===st.tab);
-    b.onclick=()=>{st.tab=ph.id;save();render()};
-    tabs.appendChild(b);
-  });
-  const list=$("list"); list.innerHTML="";
-  if(st.tab==="cmd"){
-    CMD.forEach(t=>{const c=document.createElement("div");c.className="card";c.innerHTML=`<p class="fx">${t}</p>`;list.appendChild(c)});
-    return;
-  }
-  const items=S.filter(s=>s.p.includes(st.tab));
-  if(!items.length){list.innerHTML='<p class="empty">Aucun stratagème de détachement dans cette phase.</p>';return}
-  items.forEach(s=>{
-    const blocked=s.fort&&!fort;
-    const c=document.createElement("div");
-    c.className="card"+(blocked?" off":"");
-    c.innerHTML=`<div class="top"><span class="name">${s.n}</span><span class="cp">${s.cp} CP</span></div>
-      <span class="det">${s.d}</span>
-      <span class="when">${s.w}</span>
-      <p class="fx">${s.fx}</p>
-      <span class="who">Pour : <b>${s.who}</b></span>
-      ${s.fort?`<span class="req">${blocked?"Indisponible : il faut 7 YP ou plus":"Fortify Takeover actif : disponible"}</span>`:""}`;
-    const row=document.createElement("div");row.style.cssText="display:flex;gap:8px;flex-wrap:wrap";
-    const u=document.createElement("button");u.className="use";u.textContent=`Utiliser (−${s.cp} CP)`;
-    u.disabled=blocked||st.cp<s.cp;
-    u.onclick=()=>{st.cp-=s.cp;save();render()};
-    row.appendChild(u);
-    if(s.yp){
-      const y=document.createElement("button");y.className="use";y.textContent=`Option (−${s.yp} YP)`;
-      y.disabled=st.yp<s.yp;
-      y.onclick=()=>{st.yp-=s.yp;save();render()};
-      row.appendChild(y);
-    }
-    c.appendChild(row);
-    list.appendChild(c);
+  const tabs=$("tabs");tabs.innerHTML="";
+  PHASES.forEach(ph=>{const b=document.createElement("button");b.textContent=ph.label;b.setAttribute("role","tab");
+    b.setAttribute("aria-selected",ph.id===st.tab);b.onclick=()=>{st.tab=ph.id;save();render()};tabs.appendChild(b);});
+  const list=$("list");list.innerHTML="";
+  const items=C.filter(s=>s.p.includes(st.tab));
+  const groups=[["rule","Règles"],["strat","Stratagèmes"],["syn","Synergies"]];
+  groups.forEach(([t,label])=>{
+    const g=items.filter(s=>s.t===t);if(!g.length)return;
+    const h=document.createElement("div");h.className="group";h.textContent=label;list.appendChild(h);
+    g.forEach(s=>list.appendChild(card(s,fort)));
   });
 }
 const step=(k,d)=>{st[k]=Math.max(0,st[k]+d);save();render()};
