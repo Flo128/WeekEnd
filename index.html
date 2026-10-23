@@ -28,6 +28,8 @@ header a.btn{text-decoration:none;white-space:nowrap}
 .notice{margin-bottom:14px;padding:10px 12px;border:1px solid #60452f;background:#241b15;color:#e9b58f;border-radius:9px;font-size:13px;display:none}.notice.show{display:block}
 .date-tab.extra{border-style:dashed;color:var(--accent2)}.date-tab.extra.active{color:#fff}
 .toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.lock-banner{display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #5a3a3a;background:#2a1717;color:#f3b9b9;border-radius:10px;font-size:14px}.lock-banner.show{display:block}.lock-banner strong{color:#ffd2d2}.lock-banner .comment{margin-top:6px;color:#e7c7c7;white-space:pre-wrap}
 .name-preview{padding:10px;background:#11141a;border:1px solid var(--line);border-radius:8px;font-weight:700;color:var(--accent2)}
 @media(max-width:650px){.toolbar-actions .btn{flex:1}.app{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}header{align-items:flex-start;flex-wrap:wrap}.toolbar{align-items:stretch;flex-direction:column}.grid{grid-template-columns:1fr}.note-row{flex-direction:column;align-items:stretch;gap:4px}.note-status{text-align:left}}
 </style>
@@ -46,6 +48,8 @@ header a.btn{text-decoration:none;white-space:nowrap}
 <input id="dateNote" type="text" maxlength="200" placeholder=" " disabled>
 <span class="note-status" id="noteStatus"></span>
 </div>
+
+<div id="lockBanner" class="lock-banner"></div>
 
 <div class="toolbar"><div class="summary" id="summary">Chargement…</div><div class="toolbar-actions"><button class="btn danger" id="deleteExtraBtn" hidden>Annuler cette date extra</button><button class="btn" id="addExtraBtn">⭐ Ajouter une date extra</button><button class="btn primary" id="addTableBtn">＋ Ajouter une table</button></div></div>
 <div class="grid" id="tables"><div class="loading">Chargement des données…</div></div>
@@ -92,6 +96,22 @@ const NOTE_DEBOUNCE_MS = 800;
 const datesEl=document.getElementById("dates"), tablesEl=document.getElementById("tables"), summaryEl=document.getElementById("summary"), notice=document.getElementById("notice"), modalWrap=document.getElementById("modalWrap");
 const noteInput=document.getElementById("dateNote"), noteStatus=document.getElementById("noteStatus");
 let noteTimer=null, lastSavedNote="";
+const addTableBtn=document.getElementById("addTableBtn"), lockBanner=document.getElementById("lockBanner");
+function currentDate(){return dates.find(d=>d.id===currentDateId)||null;}
+// Le verrouillage se fait uniquement via le bot Discord (/lanciers-verrouiller,
+// /lanciers-deverrouiller). La page se contente d'afficher l'état.
+function renderLock(){
+ const d=currentDate();
+ if(d?.locked){
+  addTableBtn.disabled=true;addTableBtn.title="Date verrouillée : création de table impossible";
+  lockBanner.innerHTML=`<strong>🔒 Date verrouillée</strong> — la création de nouvelles tables est désactivée.${d.lock_comment?`<div class="comment">${esc(d.lock_comment)}</div>`:""}`;
+  lockBanner.classList.add("show");
+ }else{
+  addTableBtn.disabled=false;addTableBtn.title="";
+  lockBanner.classList.remove("show");lockBanner.innerHTML="";
+ }
+}
+function friendlyError(msg){return String(msg||"").replace(/^DATE_VERROUILLEE:\s*/,"🔒 ");}
 
 function showNotice(msg){notice.textContent=msg;notice.classList.add("show");}
 function clearNotice(){notice.classList.remove("show");}
@@ -191,7 +211,7 @@ function renderDates(){
  dates.forEach(d=>{
   const b=document.createElement("button");
   b.className="date-tab"+(d.id===currentDateId?" active":"")+(d.is_extra?" extra":"");
-  b.textContent=d.is_extra?`⭐ ${d.label}`:d.label;
+  b.textContent=(d.locked?"🔒 ":"")+(d.is_extra?`⭐ ${d.label}`:d.label);
   if(d.is_extra) b.title="Date extra (hors samedi planifié)";
   b.onclick=async()=>{
     currentDateId=d.id;
@@ -206,13 +226,14 @@ function renderDates(){
   datesEl.appendChild(b);
  });
  updateNoteField();
+ renderLock();
  document.getElementById("deleteExtraBtn").hidden=!dates.find(x=>x.id===currentDateId)?.is_extra;
 }
 
 function renderTables(){
  const occupied=currentTables.reduce((n,t)=>n+[t.player1,t.player2,t.player3,t.player4].filter(Boolean).length,0);
  summaryEl.textContent=currentDateId?`${currentTables.length} table${currentTables.length>1?"s":""} · ${occupied} joueur${occupied>1?"s":""}`:"Aucune date disponible";
- if(!currentTables.length){tablesEl.innerHTML='<div class="empty">Aucune partie prévue pour cette date.<br><br>Ajoute une table pour commencer.</div>';return;}
+ if(!currentTables.length){tablesEl.innerHTML=currentDate()?.locked?'<div class="empty">Aucune partie prévue pour cette date.<br><br>🔒 La date est verrouillée.</div>':'<div class="empty">Aucune partie prévue pour cette date.<br><br>Ajoute une table pour commencer.</div>';return;}
  tablesEl.innerHTML=currentTables.map(t=>`
 <article class="table-card"><div class="card-head"><div class="table-name">${esc(t.name)}</div><div class="status">${[t.player1,t.player2,t.player3,t.player4].filter(Boolean).length} joueur(s)</div></div>
 <div class="card-body"><div class="row"><div class="label">Jeu</div><div class="value">${esc(t.game)||"—"}</div></div><div class="row"><div class="label">Décors</div><div class="value">${esc(t.terrain)||"—"}</div></div>
@@ -289,12 +310,13 @@ window.deleteTable=async id=>{const t=currentTables.find(x=>x.id===id);if(!confi
 
 document.getElementById("tableForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!configured)return;
+ if(!editId && currentDate()?.locked){closeModal();showNotice("🔒 Cette date est verrouillée, impossible d'ajouter une table.");return;}
  const payload={date_id:currentDateId,name:computedTableName,game:document.getElementById("game").value.trim(),terrain:document.getElementById("terrain").value.trim(),
  player1:document.getElementById("p1").value.trim(),player2:document.getElementById("p2").value.trim(),player3:document.getElementById("p3").value.trim(),player4:document.getElementById("p4").value.trim()};
  let result=editId?await supabaseClient.from("warhammer_tables").update(payload).eq("id",editId):await supabaseClient.from("warhammer_tables").insert(payload);
- if(result.error)showNotice("Erreur : "+result.error.message);else{closeModal();await loadTables();}
+ if(result.error){closeModal();showNotice("Erreur : "+friendlyError(result.error.message));await loadDates();}else{closeModal();await loadTables();}
 });
-document.getElementById("addTableBtn").onclick=()=>{if(!currentDateId){showNotice("Aucune date disponible pour le moment.");return;}openModal();};
+addTableBtn.onclick=()=>{if(!currentDateId){showNotice("Aucune date disponible pour le moment.");return;}if(currentDate()?.locked){showNotice("🔒 Cette date est verrouillée, impossible d'ajouter une table.");return;}openModal();};
 document.getElementById("cancelBtn").onclick=closeModal;modalWrap.addEventListener("click",e=>{if(e.target===modalWrap)closeModal();});
 
 // ---------- Dates extra ----------
