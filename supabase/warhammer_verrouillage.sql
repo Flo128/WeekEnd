@@ -13,6 +13,7 @@ alter table public.warhammer_dates
 create or replace function public.warhammer_block_locked_date()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 declare
   d record;
@@ -44,6 +45,7 @@ create trigger warhammer_tables_block_locked
 create or replace function public.warhammer_protect_lock_columns()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if coalesce(auth.role(), '') = 'service_role' or current_user in ('postgres', 'service_role') then
