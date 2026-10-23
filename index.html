@@ -27,6 +27,7 @@ header a.btn{text-decoration:none;white-space:nowrap}
 .modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}.modal-wrap.open{display:flex}.modal{width:min(620px,100%);background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:20px;box-shadow:0 20px 60px #0008}.modal h2{margin:0 0 18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field.full{grid-column:1/-1}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;background:#11141a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .notice{margin-bottom:14px;padding:10px 12px;border:1px solid #60452f;background:#241b15;color:#e9b58f;border-radius:9px;font-size:13px;display:none}.notice.show{display:block}
 .date-tab.extra{border-style:dashed;color:var(--accent2)}.date-tab.extra.active{color:#fff}
+.date-tab.locked{border-color:var(--danger);background:#2a1717;color:#f3b9b9}.date-tab.locked.active{background:var(--danger);border-color:var(--danger);color:#fff}
 .toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .lock-banner{display:none;margin:0 0 14px;padding:12px 14px;border:1px solid #5a3a3a;background:#2a1717;color:#f3b9b9;border-radius:10px;font-size:14px}.lock-banner.show{display:block}.lock-banner strong{color:#ffd2d2}.lock-banner .comment{margin-top:6px;color:#e7c7c7;white-space:pre-wrap}
@@ -210,9 +211,10 @@ function renderDates(){
  datesEl.innerHTML="";
  dates.forEach(d=>{
   const b=document.createElement("button");
-  b.className="date-tab"+(d.id===currentDateId?" active":"")+(d.is_extra?" extra":"");
+  b.className="date-tab"+(d.id===currentDateId?" active":"")+(d.is_extra?" extra":"")+(d.locked?" locked":"");
   b.textContent=(d.locked?"🔒 ":"")+(d.is_extra?`⭐ ${d.label}`:d.label);
   if(d.is_extra) b.title="Date extra (hors samedi planifié)";
+  if(d.locked) b.title="Date verrouillée"+(d.lock_comment?" : "+d.lock_comment:"");
   b.onclick=async()=>{
     currentDateId=d.id;
     // Met à jour l'URL (?date=YYYY-MM-DD) pour que le lien reste partageable
